@@ -166,19 +166,72 @@ export default function ColorsGameScreen() {
     
     const currentStep = newUserSequence.length - 1;
     if (newUserSequence[currentStep] !== sequence[currentStep]) {
-      setTimeout(() => {
-        setUserSequence(newUserSequence);
-        checkAnswer();
-      }, 100);
+      const correct = false;
+      console.log('Wrong input detected:', { newUserSequence, sequence, correct });
+      setIsCorrect(correct);
+      setGamePhase('result');
+      
+      Animated.sequence([
+        Animated.timing(shakeAnimation, {
+          toValue: 10,
+          duration: 50,
+          useNativeDriver: true,
+        }),
+        Animated.timing(shakeAnimation, {
+          toValue: -10,
+          duration: 50,
+          useNativeDriver: true,
+        }),
+        Animated.timing(shakeAnimation, {
+          toValue: 10,
+          duration: 50,
+          useNativeDriver: true,
+        }),
+        Animated.timing(shakeAnimation, {
+          toValue: 0,
+          duration: 50,
+          useNativeDriver: true,
+        }),
+      ]).start();
+
+      Animated.timing(resultOpacity, {
+        toValue: 1,
+        duration: 300,
+        useNativeDriver: true,
+      }).start();
       return;
     }
     
     if (newUserSequence.length === sequence.length) {
+      const correct = true;
+      console.log('Correct sequence completed:', { newUserSequence, sequence, correct });
+      setIsCorrect(correct);
+      
+      const currentBest = bestScores.colors[gameConfig.gridSize];
+      if (currentLevel > currentBest) {
+        updateBestScore('colors', currentLevel, gameConfig.gridSize);
+      }
+
+      setGamePhase('result');
+      Animated.timing(resultOpacity, {
+        toValue: 1,
+        duration: 300,
+        useNativeDriver: true,
+      }).start();
+
       setTimeout(() => {
-        checkAnswer();
-      }, 300);
+        resultOpacity.setValue(0);
+        setCurrentLevel(prev => prev + 1);
+        const newSequence = generateSequence(currentLevel + 1);
+        setSequence(newSequence);
+        setUserSequence([]);
+        setIsCorrect(null);
+        setShowingIndex(0);
+        setHighlightedCell(null);
+        setGamePhase('showing');
+      }, 1500);
     }
-  }, [gamePhase, userSequence, sequence, checkAnswer]);
+  }, [gamePhase, userSequence, sequence, shakeAnimation, resultOpacity, bestScores.colors, gameConfig.gridSize, currentLevel, updateBestScore, generateSequence]);
 
   const nextLevel = useCallback(() => {
     resultOpacity.setValue(0);
