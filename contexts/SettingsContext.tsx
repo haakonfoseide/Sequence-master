@@ -185,8 +185,14 @@ export const [SettingsProvider, useSettings] = createContextHook(() => {
     try {
       const stored = await AsyncStorage.getItem(BEST_SCORES_KEY);
       if (stored) {
-        const scores = JSON.parse(stored);
-        setBestScores(scores);
+        try {
+          const scores = JSON.parse(stored);
+          setBestScores(scores);
+        } catch (parseError) {
+          console.error('Failed to parse best scores, resetting to defaults:', parseError);
+          await AsyncStorage.removeItem(BEST_SCORES_KEY);
+          setBestScores(DEFAULT_BEST_SCORES);
+        }
       }
     } catch (error) {
       console.error('Failed to load best scores:', error);
