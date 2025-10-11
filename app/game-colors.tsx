@@ -9,7 +9,9 @@ import {
   TouchableOpacity,
   Animated,
   Dimensions,
+  Platform,
 } from 'react-native';
+import * as Haptics from 'expo-haptics';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useSettings } from '@/contexts/SettingsContext';
@@ -20,7 +22,7 @@ type GamePhase = 'showing' | 'input' | 'result';
 export default function ColorsGameScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
-  const { colors, gameConfig, updateBestScore, bestScores } = useSettings();
+  const { colors, gameConfig, updateBestScore, bestScores, hapticsEnabled } = useSettings();
   const [gamePhase, setGamePhase] = useState<GamePhase>('showing');
   const [currentLevel, setCurrentLevel] = useState<number>(1);
   const [sequence, setSequence] = useState<number[]>([]);
@@ -60,8 +62,8 @@ export default function ColorsGameScreen() {
     
     const showNextCell = () => {
       if (index < sequence.length) {
-        setShowingIndex(index);
         setHighlightedCell(sequence[index]);
+        setShowingIndex(index + 1);
         
         setTimeout(() => {
           setHighlightedCell(null);
@@ -171,6 +173,10 @@ export default function ColorsGameScreen() {
   const handleCellPress = useCallback((index: number) => {
     if (gamePhase !== 'input') return;
     
+    if (hapticsEnabled && Platform.OS !== 'web') {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    }
+    
     const newUserSequence = [...userSequence, index];
     setUserSequence(newUserSequence);
     
@@ -242,7 +248,7 @@ export default function ColorsGameScreen() {
         setGamePhase('showing');
       }, 1500);
     }
-  }, [gamePhase, userSequence, sequence, shakeAnimation, resultOpacity, bestScores.colors, gameConfig.gridSize, currentLevel, updateBestScore, totalCells]);
+  }, [gamePhase, userSequence, sequence, shakeAnimation, resultOpacity, bestScores.colors, gameConfig.gridSize, currentLevel, updateBestScore, totalCells, hapticsEnabled]);
 
   const nextLevel = useCallback(() => {
     resultOpacity.setValue(0);
@@ -325,7 +331,7 @@ export default function ColorsGameScreen() {
               </TouchableOpacity>
               <Text style={[styles.levelText, { color: colors.text.primary }]}>Nivå {currentLevel}</Text>
               <Text style={[styles.progressText, { color: colors.text.secondary }]}>
-                {gamePhase === 'showing' ? `${showingIndex + 1} / ${sequence.length}` : `${userSequence.length} / ${sequence.length}`}
+                {gamePhase === 'showing' ? `${showingIndex} / ${sequence.length}` : `${userSequence.length} / ${sequence.length}`}
               </Text>
             </View>
 
