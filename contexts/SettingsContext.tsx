@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 
 export type Theme = 'purple' | 'blue' | 'green' | 'orange';
 export type GameMode = 'colors' | 'numbers' | 'pi';
-export type PiMode = 'sequence' | 'free';
+export type PiMode = 'sequence' | 'free' | 'learn';
 export type Difficulty = 'easy' | 'normal' | 'hard';
 export type GridSize = '2x2' | '3x3' | '4x4' | '5x5';
 

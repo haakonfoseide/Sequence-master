@@ -99,20 +99,27 @@ export default function ColorsGameScreen() {
     
     console.log('Checking answer:', { userSequence, sequence, correct });
     setIsCorrect(correct);
-    setGamePhase('result');
 
     if (correct) {
-      Animated.timing(resultOpacity, {
-        toValue: 1,
-        duration: 300,
-        useNativeDriver: true,
-      }).start();
-
       const currentBest = bestScores.colors[gameConfig.gridSize];
       if (currentLevel > currentBest) {
         updateBestScore('colors', currentLevel, gameConfig.gridSize);
       }
+
+      setTimeout(() => {
+        resultOpacity.setValue(0);
+        setCurrentLevel(prev => prev + 1);
+        const newSequence = generateSequence(currentLevel + 1);
+        setSequence(newSequence);
+        setUserSequence([]);
+        setIsCorrect(null);
+        setShowingIndex(0);
+        setHighlightedCell(null);
+        setGamePhase('showing');
+      }, 800);
     } else {
+      setGamePhase('result');
+      
       Animated.sequence([
         Animated.timing(shakeAnimation, {
           toValue: 10,
@@ -142,7 +149,7 @@ export default function ColorsGameScreen() {
         useNativeDriver: true,
       }).start();
     }
-  }, [userSequence, sequence, currentLevel, bestScores.colors, gameConfig.gridSize, resultOpacity, shakeAnimation, updateBestScore]);
+  }, [userSequence, sequence, currentLevel, bestScores.colors, gameConfig.gridSize, resultOpacity, shakeAnimation, updateBestScore, generateSequence]);
 
   const handleCellPress = useCallback((index: number) => {
     if (gamePhase !== 'input') return;

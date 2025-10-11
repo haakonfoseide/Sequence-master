@@ -40,7 +40,11 @@ export default function ModeSelectScreen() {
     });
 
     if (selectedMode === 'pi') {
-      router.push('/game-pi');
+      if (piMode === 'learn') {
+        router.push('/pi-digits');
+      } else {
+        router.push('/game-pi');
+      }
     } else if (selectedMode === 'colors') {
       router.push('/game-colors');
     } else if (selectedMode === 'numbers') {
@@ -158,7 +162,7 @@ export default function ModeSelectScreen() {
                 <Text style={[styles.gridSelectorLabel, { color: colors.text.primary }]}>Type</Text>
                 <View style={styles.gridSelectorRight}>
                   <Text style={[styles.gridSelectorValue, { color: colors.text.primary }]}>
-                    {piMode === 'sequence' ? 'Frekvens' : 'Fritt'}
+                    {piMode === 'sequence' ? 'Frekvens' : piMode === 'free' ? 'Fritt' : 'Les og øv'}
                   </Text>
                   {showPiModePicker ? (
                     <ChevronUp color={colors.text.primary} size={20} />
@@ -170,7 +174,11 @@ export default function ModeSelectScreen() {
 
               {showPiModePicker && (
                 <View style={[styles.gridPicker, { backgroundColor: 'rgba(255, 255, 255, 0.1)' }]}>
-                  {[{ value: 'sequence' as PiMode, label: 'Frekvens' }, { value: 'free' as PiMode, label: 'Fritt' }].map((option) => (
+                  {[
+                    { value: 'sequence' as PiMode, label: 'Frekvens' },
+                    { value: 'free' as PiMode, label: 'Fritt' },
+                    { value: 'learn' as PiMode, label: 'Les og øv' }
+                  ].map((option) => (
                     <TouchableOpacity
                       key={option.value}
                       style={[
