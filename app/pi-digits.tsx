@@ -1,6 +1,6 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
-import { ArrowLeft, Hash } from 'lucide-react-native';
+import { ArrowLeft, Hash, EyeOff } from 'lucide-react-native';
 import React, { useState } from 'react';
 import {
   StyleSheet,
@@ -9,6 +9,7 @@ import {
   TouchableOpacity,
   ScrollView,
   TextInput,
+  Keyboard,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -20,6 +21,7 @@ export default function PiDigitsScreen() {
   const router = useRouter();
   const { colors } = useSettings();
   const [displayCount, setDisplayCount] = useState<string>('100');
+  const [isKeyboardVisible, setIsKeyboardVisible] = useState<boolean>(false);
 
   const count = Math.min(parseInt(displayCount, 10) || 100, PI_DIGITS.length);
   const displayedDigits = PI_DIGITS.substring(0, count);
@@ -65,15 +67,30 @@ export default function PiDigitsScreen() {
               <Text style={[styles.inputLabel, { color: colors.text.secondary }]}>
                 Antall sifre:
               </Text>
-              <TextInput
-                style={[styles.input, { color: colors.text.primary, borderColor: colors.text.secondary }]}
-                value={displayCount}
-                onChangeText={setDisplayCount}
-                keyboardType="number-pad"
-                maxLength={4}
-                placeholder="100"
-                placeholderTextColor={colors.text.secondary}
-              />
+              <View style={styles.inputRow}>
+                <TextInput
+                  style={[styles.input, { color: colors.text.primary, borderColor: colors.text.secondary }]}
+                  value={displayCount}
+                  onChangeText={setDisplayCount}
+                  onFocus={() => setIsKeyboardVisible(true)}
+                  keyboardType="number-pad"
+                  maxLength={4}
+                  placeholder="100"
+                  placeholderTextColor={colors.text.secondary}
+                />
+                {isKeyboardVisible && (
+                  <TouchableOpacity
+                    style={[styles.hideKeyboardButton, { backgroundColor: colors.button.primary }]}
+                    onPress={() => {
+                      Keyboard.dismiss();
+                      setIsKeyboardVisible(false);
+                    }}
+                    activeOpacity={0.7}
+                  >
+                    <EyeOff color={colors.button.primaryText} size={20} />
+                  </TouchableOpacity>
+                )}
+              </View>
             </View>
           </View>
 
@@ -155,9 +172,11 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255, 255, 255, 0.15)',
     borderRadius: 16,
     padding: 16,
+  },
+  inputRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
+    gap: 12,
   },
   inputLabel: {
     fontSize: 16,
@@ -173,6 +192,14 @@ const styles = StyleSheet.create({
     minWidth: 80,
     textAlign: 'center',
     borderWidth: 1,
+    flex: 1,
+  },
+  hideKeyboardButton: {
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    justifyContent: 'center' as const,
+    alignItems: 'center' as const,
   },
   digitsContainer: {
     flex: 1,

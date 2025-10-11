@@ -101,6 +101,13 @@ export default function NumbersGameScreen() {
         updateBestScore('numbers', currentLevel, gameConfig.gridSize);
       }
 
+      setGamePhase('result');
+      Animated.timing(resultOpacity, {
+        toValue: 1,
+        duration: 300,
+        useNativeDriver: true,
+      }).start();
+
       setTimeout(() => {
         resultOpacity.setValue(0);
         setCurrentLevel(prev => prev + 1);
@@ -111,7 +118,7 @@ export default function NumbersGameScreen() {
         setShowingIndex(0);
         setHighlightedCell(null);
         setGamePhase('showing');
-      }, 800);
+      }, 1500);
     } else {
       setGamePhase('result');
       

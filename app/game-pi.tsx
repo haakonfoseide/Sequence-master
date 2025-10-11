@@ -22,7 +22,7 @@ export default function PiGameScreen() {
   const router = useRouter();
   const { colors, gameConfig, updateBestScore, bestScores } = useSettings();
   const [gamePhase, setGamePhase] = useState<GamePhase>('showing');
-  const [currentLevel, setCurrentLevel] = useState<number>(3);
+  const [currentLevel, setCurrentLevel] = useState<number>(1);
   const [displayedDigit, setDisplayedDigit] = useState<string>('');
   const [userInput, setUserInput] = useState<string>('');
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
@@ -175,7 +175,7 @@ export default function PiGameScreen() {
   }, [resultOpacity, startGame]);
 
   const restartGame = useCallback(() => {
-    setCurrentLevel(3);
+    setCurrentLevel(1);
     resultOpacity.setValue(0);
     startGame();
   }, [resultOpacity, startGame]);
@@ -240,7 +240,7 @@ export default function PiGameScreen() {
               >
                 <ArrowLeft color={colors.text.primary} size={24} />
               </TouchableOpacity>
-              <Text style={[styles.levelText, { color: colors.text.primary }]}>Nivå {currentLevel}</Text>
+              <Text style={[styles.levelText, { color: colors.text.primary }]}>{piMode === 'free' ? 'Pi' : `Nivå ${currentLevel}`}</Text>
               <Text style={[styles.progressText, { color: colors.text.secondary }]}>
                 {showingIndex + 1} / {currentLevel}
               </Text>
@@ -278,7 +278,7 @@ export default function PiGameScreen() {
               >
                 <ArrowLeft color={colors.text.primary} size={24} />
               </TouchableOpacity>
-              <Text style={[styles.levelText, { color: colors.text.primary }]}>Nivå {currentLevel}</Text>
+              <Text style={[styles.levelText, { color: colors.text.primary }]}>{piMode === 'free' ? 'Pi' : `Nivå ${currentLevel}`}</Text>
               <View style={styles.placeholder} />
             </View>
 
