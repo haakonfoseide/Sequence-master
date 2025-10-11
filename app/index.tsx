@@ -10,11 +10,14 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useSettings } from '@/contexts/SettingsContext';
+import { useBackgroundMusic } from '@/hooks/useBackgroundMusic';
 
 export default function HomeScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
-  const { colors, bestScores, gameConfig } = useSettings();
+  const { colors, bestScores, gameConfig, musicEnabled } = useSettings();
+  
+  useBackgroundMusic('pi', musicEnabled);
 
   const getGridBestScore = (mode: 'colors' | 'numbers') => {
     const gridSize = gameConfig.gridSize;
