@@ -1,0 +1,137 @@
+import { LinearGradient } from 'expo-linear-gradient';
+import { useRouter } from 'expo-router';
+import React from 'react';
+import {
+  StyleSheet,
+  Text,
+  View,
+  TouchableOpacity,
+} from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
+import { useSettings } from '@/contexts/SettingsContext';
+
+export default function HomeScreen() {
+  const insets = useSafeAreaInsets();
+  const router = useRouter();
+  const { colors, bestScores, gameConfig } = useSettings();
+
+  const getGridBestScore = (mode: 'colors' | 'numbers') => {
+    const gridSize = gameConfig.gridSize;
+    return bestScores[mode][gridSize];
+  };
+
+  return (
+    <LinearGradient
+      colors={[colors.background.start, colors.background.end]}
+      style={styles.container}
+    >
+      <View style={[styles.safeArea, { paddingTop: insets.top + 20, paddingBottom: insets.bottom + 20 }]}>
+        <View style={styles.startScreen}>
+          <View style={styles.header}>
+            <Text style={[styles.title, { color: colors.text.primary }]}>Sequence Master</Text>
+          </View>
+
+          <View style={styles.mainButtons}>
+            <TouchableOpacity
+              style={[styles.mainButton, { backgroundColor: colors.button.primary }]}
+              onPress={() => router.push('/mode-select')}
+              activeOpacity={0.8}
+            >
+              <Text style={[styles.mainButtonText, { color: colors.button.primaryText }]}>Start</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[styles.mainButton, { backgroundColor: colors.button.primary }]}
+              onPress={() => router.push('/settings')}
+              activeOpacity={0.8}
+            >
+              <Text style={[styles.mainButtonText, { color: colors.button.primaryText }]}>Innstillinger</Text>
+            </TouchableOpacity>
+          </View>
+
+          <View style={styles.recordsSection}>
+            <Text style={[styles.recordsTitle, { color: colors.text.primary }]}>Rekorder</Text>
+            <View style={styles.recordsBox}>
+              <View style={styles.recordRow}>
+                <Text style={[styles.recordLabel, { color: colors.text.primary }]}>Farger</Text>
+                <Text style={[styles.recordValue, { color: colors.text.primary }]}>{getGridBestScore('colors')}</Text>
+              </View>
+              <View style={styles.recordRow}>
+                <Text style={[styles.recordLabel, { color: colors.text.primary }]}>Tall</Text>
+                <Text style={[styles.recordValue, { color: colors.text.primary }]}>{getGridBestScore('numbers')}</Text>
+              </View>
+              <View style={styles.recordRow}>
+                <Text style={[styles.recordLabel, { color: colors.text.primary }]}>Pi</Text>
+                <Text style={[styles.recordValue, { color: colors.text.primary }]}>{bestScores.pi}</Text>
+              </View>
+            </View>
+          </View>
+        </View>
+      </View>
+    </LinearGradient>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  safeArea: {
+    flex: 1,
+  },
+  startScreen: {
+    flex: 1,
+    paddingHorizontal: 24,
+    paddingTop: 60,
+  },
+  header: {
+    alignItems: 'center',
+    marginBottom: 60,
+  },
+  title: {
+    fontSize: 42,
+    fontWeight: '800' as const,
+    letterSpacing: -1,
+  },
+  mainButtons: {
+    gap: 16,
+    marginBottom: 60,
+  },
+  mainButton: {
+    borderRadius: 16,
+    paddingVertical: 20,
+    alignItems: 'center' as const,
+  },
+  mainButtonText: {
+    fontSize: 20,
+    fontWeight: '700' as const,
+  },
+  recordsSection: {
+    flex: 1,
+  },
+  recordsTitle: {
+    fontSize: 24,
+    fontWeight: '700' as const,
+    marginBottom: 16,
+  },
+  recordsBox: {
+    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    borderRadius: 20,
+    padding: 24,
+    gap: 16,
+  },
+  recordRow: {
+    flexDirection: 'row' as const,
+    justifyContent: 'space-between' as const,
+    alignItems: 'center' as const,
+  },
+  recordLabel: {
+    fontSize: 18,
+    fontWeight: '500' as const,
+  },
+  recordValue: {
+    fontSize: 18,
+    fontWeight: '700' as const,
+  },
+});
