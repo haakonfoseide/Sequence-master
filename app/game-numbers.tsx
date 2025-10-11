@@ -21,7 +21,7 @@ export default function NumbersGameScreen() {
   const router = useRouter();
   const { colors, gameConfig, updateBestScore, bestScores } = useSettings();
   const [gamePhase, setGamePhase] = useState<GamePhase>('showing');
-  const [currentLevel, setCurrentLevel] = useState<number>(3);
+  const [currentLevel, setCurrentLevel] = useState<number>(1);
   const [sequence, setSequence] = useState<number[]>([]);
   const [userSequence, setUserSequence] = useState<number[]>([]);
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
@@ -77,8 +77,10 @@ export default function NumbersGameScreen() {
   }, [currentLevel, generateSequence]);
 
   useEffect(() => {
-    startGame();
-  }, [startGame]);
+    if (sequence.length === 0) {
+      startGame();
+    }
+  }, []);
 
   useEffect(() => {
     if (gamePhase === 'showing' && sequence.length > 0) {
@@ -160,16 +162,28 @@ export default function NumbersGameScreen() {
   }, [gamePhase, userSequence, sequence, checkAnswer]);
 
   const nextLevel = useCallback(() => {
-    setCurrentLevel(prev => prev + 1);
     resultOpacity.setValue(0);
-    startGame();
-  }, [resultOpacity, startGame]);
+    setCurrentLevel(prev => prev + 1);
+    const newSequence = generateSequence(currentLevel + 1);
+    setSequence(newSequence);
+    setUserSequence([]);
+    setIsCorrect(null);
+    setShowingIndex(0);
+    setHighlightedCell(null);
+    setGamePhase('showing');
+  }, [resultOpacity, currentLevel, generateSequence]);
 
   const restartGame = useCallback(() => {
-    setCurrentLevel(3);
     resultOpacity.setValue(0);
-    startGame();
-  }, [resultOpacity, startGame]);
+    setCurrentLevel(1);
+    const newSequence = generateSequence(1);
+    setSequence(newSequence);
+    setUserSequence([]);
+    setIsCorrect(null);
+    setShowingIndex(0);
+    setHighlightedCell(null);
+    setGamePhase('showing');
+  }, [resultOpacity, generateSequence]);
 
   const backToMenu = useCallback(() => {
     router.back();
