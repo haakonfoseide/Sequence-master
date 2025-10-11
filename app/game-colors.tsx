@@ -33,6 +33,7 @@ export default function ColorsGameScreen() {
 
   const resultOpacity = useRef(new Animated.Value(0)).current;
   const shakeAnimation = useRef(new Animated.Value(0)).current;
+  const nextLevelTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const gridSize = parseInt(gameConfig.gridSize.split('x')[0], 10);
   const totalCells = gridSize * gridSize;
@@ -235,13 +236,18 @@ export default function ColorsGameScreen() {
         useNativeDriver: true,
       }).start();
 
-      setTimeout(() => {
+      nextLevelTimeoutRef.current = setTimeout(() => {
         nextLevel();
       }, 1500);
     }
   }, [gamePhase, userSequence, sequence, shakeAnimation, resultOpacity, bestScores.colors, gameConfig.gridSize, currentLevel, updateBestScore, totalCells, hapticsEnabled]);
 
   const nextLevel = useCallback(() => {
+    if (nextLevelTimeoutRef.current) {
+      clearTimeout(nextLevelTimeoutRef.current);
+      nextLevelTimeoutRef.current = null;
+    }
+    
     resultOpacity.setValue(0);
     setCurrentLevel(prev => prev + 1);
     const newElement = Math.floor(Math.random() * totalCells);
