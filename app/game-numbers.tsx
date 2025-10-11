@@ -341,6 +341,10 @@ export default function NumbersGameScreen() {
             <Text style={[styles.instructionText, { color: colors.text.secondary }]}>
               {gamePhase === 'showing' ? 'Husk sekvensen...' : 'Trykk på tallene i riktig rekkefølge'}
             </Text>
+
+            <View style={styles.adSpace}>
+              <Text style={[styles.adSpaceText, { color: colors.text.secondary }]}>Annonse</Text>
+            </View>
           </View>
         )}
 
@@ -470,7 +474,20 @@ const styles = StyleSheet.create({
   instructionText: {
     fontSize: 18,
     textAlign: 'center',
-    marginBottom: 40,
+    marginBottom: 20,
+  },
+  adSpace: {
+    height: 60,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    borderRadius: 12,
+    marginHorizontal: 24,
+    marginBottom: 20,
+    justifyContent: 'center' as const,
+    alignItems: 'center' as const,
+  },
+  adSpaceText: {
+    fontSize: 12,
+    opacity: 0.5,
   },
   resultContainer: {
     flex: 1,

@@ -265,6 +265,10 @@ export default function PiGameScreen() {
             </View>
 
             <Text style={[styles.watchText, { color: colors.text.secondary }]}>Husk sekvensen...</Text>
+
+            <View style={styles.adSpace}>
+              <Text style={[styles.adSpaceText, { color: colors.text.secondary }]}>Annonse</Text>
+            </View>
           </View>
         )}
 
@@ -314,6 +318,10 @@ export default function PiGameScreen() {
             </View>
 
             {renderNumberPad()}
+
+            <View style={styles.adSpace}>
+              <Text style={[styles.adSpaceText, { color: colors.text.secondary }]}>Annonse</Text>
+            </View>
           </View>
         )}
 
@@ -504,7 +512,21 @@ const styles = StyleSheet.create({
   },
   numberPad: {
     alignItems: 'center',
-    paddingBottom: 20,
+    paddingBottom: 0,
+  },
+  adSpace: {
+    height: 60,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    borderRadius: 12,
+    marginHorizontal: 24,
+    marginTop: 12,
+    marginBottom: 20,
+    justifyContent: 'center' as const,
+    alignItems: 'center' as const,
+  },
+  adSpaceText: {
+    fontSize: 12,
+    opacity: 0.5,
   },
   numberPadRow: {
     flexDirection: 'row',
