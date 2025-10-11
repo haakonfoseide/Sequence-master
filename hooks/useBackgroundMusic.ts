@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import { Platform } from 'react-native';
 import { Audio } from 'expo-av';
 
 type MusicTheme = 'pi' | 'colors' | 'numbers';
@@ -14,6 +15,11 @@ export function useBackgroundMusic(theme: MusicTheme, enabled: boolean = true) {
   const isLoadingRef = useRef<boolean>(false);
 
   useEffect(() => {
+    if (Platform.OS === 'web') {
+      console.log('Background music not supported on web');
+      return;
+    }
+
     let isMounted = true;
 
     const loadAndPlayMusic = async () => {
@@ -57,7 +63,7 @@ export function useBackgroundMusic(theme: MusicTheme, enabled: boolean = true) {
       isMounted = false;
       if (soundRef.current) {
         console.log(`Unloading music for theme: ${theme}`);
-        soundRef.current.unloadAsync().catch(err => 
+        soundRef.current.unloadAsync().catch((err) => 
           console.error('Error unloading sound:', err)
         );
         soundRef.current = null;
