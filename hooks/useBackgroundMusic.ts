@@ -5,9 +5,9 @@ import { Audio } from 'expo-av';
 type MusicTheme = 'pi' | 'colors' | 'numbers';
 
 const MUSIC_URLS: Record<MusicTheme, string> = {
-  pi: 'https://cdn.pixabay.com/audio/2022/03/10/audio_4a8f1b5a8e.mp3',
-  colors: 'https://cdn.pixabay.com/audio/2022/05/27/audio_1808fbf07a.mp3',
-  numbers: 'https://cdn.pixabay.com/audio/2022/03/24/audio_c8a7e1d2f0.mp3',
+  pi: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
+  colors: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3',
+  numbers: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3',
 };
 
 export function useBackgroundMusic(theme: MusicTheme, enabled: boolean = true) {
@@ -35,21 +35,23 @@ export function useBackgroundMusic(theme: MusicTheme, enabled: boolean = true) {
           shouldDuckAndroid: true,
         });
 
-        const { sound } = await Audio.Sound.createAsync(
+        const { sound, status } = await Audio.Sound.createAsync(
           { uri: MUSIC_URLS[theme] },
           { 
             shouldPlay: true, 
             isLooping: true,
             volume: 0.3,
           },
-          (status) => {
-            if (status.isLoaded) {
+          (playbackStatus) => {
+            if (playbackStatus.isLoaded) {
               console.log(`Music loaded successfully for theme: ${theme}`);
-            } else if (status.error) {
-              console.error(`Error in playback status: ${status.error}`);
             }
           }
         );
+
+        if (!status.isLoaded) {
+          throw new Error('Failed to load audio');
+        }
 
         if (isMounted) {
           soundRef.current = sound;
@@ -58,12 +60,10 @@ export function useBackgroundMusic(theme: MusicTheme, enabled: boolean = true) {
           await sound.unloadAsync();
         }
       } catch (error: any) {
-        console.error('Error loading background music:', error);
-        console.error('Error details:', {
-          message: error?.message,
-          code: error?.code,
-          domain: error?.domain,
-        });
+        console.log('Background music could not be loaded. Continuing without music.');
+        if (__DEV__) {
+          console.log('Music error details:', error?.message || error);
+        }
       } finally {
         isLoadingRef.current = false;
       }
