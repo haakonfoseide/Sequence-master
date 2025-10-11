@@ -10,9 +10,13 @@ const MUSIC_URLS: Record<MusicTheme, string> = {
   numbers: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3',
 };
 
+let globalSound: Audio.Sound | null = null;
+let globalTheme: MusicTheme | null = null;
+
 export function useBackgroundMusic(theme: MusicTheme, enabled: boolean = true) {
   const soundRef = useRef<Audio.Sound | null>(null);
   const isLoadingRef = useRef<boolean>(false);
+  const isMountedRef = useRef<boolean>(true);
 
   useEffect(() => {
     if (Platform.OS === 'web') {
@@ -20,10 +24,27 @@ export function useBackgroundMusic(theme: MusicTheme, enabled: boolean = true) {
       return;
     }
 
-    let isMounted = true;
+    isMountedRef.current = true;
 
     const loadAndPlayMusic = async () => {
       if (!enabled || isLoadingRef.current) return;
+
+      if (globalSound && globalTheme === theme) {
+        console.log(`Music already playing for theme: ${theme}`);
+        soundRef.current = globalSound;
+        return;
+      }
+
+      if (globalSound && globalTheme !== theme) {
+        console.log(`Stopping previous music (${globalTheme}) to play new theme: ${theme}`);
+        try {
+          await globalSound.unloadAsync();
+        } catch (err) {
+          console.error('Error unloading previous sound:', err);
+        }
+        globalSound = null;
+        globalTheme = null;
+      }
 
       try {
         isLoadingRef.current = true;
@@ -53,8 +74,10 @@ export function useBackgroundMusic(theme: MusicTheme, enabled: boolean = true) {
           throw new Error('Failed to load audio');
         }
 
-        if (isMounted) {
+        if (isMountedRef.current) {
           soundRef.current = sound;
+          globalSound = sound;
+          globalTheme = theme;
           console.log(`Music playing for theme: ${theme}`);
         } else {
           await sound.unloadAsync();
@@ -72,13 +95,15 @@ export function useBackgroundMusic(theme: MusicTheme, enabled: boolean = true) {
     loadAndPlayMusic();
 
     return () => {
-      isMounted = false;
-      if (soundRef.current) {
+      isMountedRef.current = false;
+      if (soundRef.current && soundRef.current === globalSound) {
         console.log(`Unloading music for theme: ${theme}`);
         soundRef.current.unloadAsync().catch((err) => 
           console.error('Error unloading sound:', err)
         );
         soundRef.current = null;
+        globalSound = null;
+        globalTheme = null;
       }
     };
   }, [theme, enabled]);
