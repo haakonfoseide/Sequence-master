@@ -231,16 +231,7 @@ export default function NumbersGameScreen() {
       }).start();
 
       setTimeout(() => {
-        resultOpacity.setValue(0);
-        setCurrentLevel(prev => prev + 1);
-        const newElement = Math.floor(Math.random() * totalCells);
-        const newSequence = [...sequence, newElement];
-        setSequence(newSequence);
-        setUserSequence([]);
-        setIsCorrect(null);
-        setShowingIndex(0);
-        setHighlightedCell(null);
-        setGamePhase('showing');
+        nextLevel();
       }, 1500);
     }
   }, [gamePhase, userSequence, sequence, shakeAnimation, resultOpacity, bestScores.numbers, gameConfig.gridSize, currentLevel, updateBestScore, totalCells, hapticsEnabled]);
