@@ -111,9 +111,9 @@ export default function NumbersGameScreen() {
     setIsCorrect(correct);
 
     if (correct) {
-      const currentBest = bestScores.numbers[gameConfig.gridSize];
+      const currentBest = bestScores.numbers;
       if (currentLevel > currentBest) {
-        updateBestScore('numbers', currentLevel, gameConfig.gridSize);
+        updateBestScore('numbers', currentLevel);
       }
 
       setGamePhase('result');
@@ -222,9 +222,9 @@ export default function NumbersGameScreen() {
       console.log('Correct sequence completed:', { newUserSequence, sequence, correct });
       setIsCorrect(correct);
       
-      const currentBest = bestScores.numbers[gameConfig.gridSize];
+      const currentBest = bestScores.numbers;
       if (currentLevel > currentBest) {
-        updateBestScore('numbers', currentLevel, gameConfig.gridSize);
+        updateBestScore('numbers', currentLevel);
       }
 
       setGamePhase('result');
@@ -387,7 +387,7 @@ export default function NumbersGameScreen() {
                     Du nådde nivå {currentLevel}
                   </Text>
 
-                  {currentLevel > bestScores.numbers[gameConfig.gridSize] && (
+                  {currentLevel > bestScores.numbers && (
                     <View style={styles.newRecordBadge}>
                       <Trophy color={colors.digit.correct} size={20} />
                       <Text style={[styles.newRecordText, { color: colors.digit.correct }]}>Ny Rekord!</Text>

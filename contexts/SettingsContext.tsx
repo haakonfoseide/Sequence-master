@@ -16,8 +16,8 @@ export interface GameConfig {
 }
 
 export interface BestScores {
-  colors: Record<GridSize, number>;
-  numbers: Record<GridSize, number>;
+  colors: number;
+  numbers: number;
   pi: number;
 }
 
@@ -134,8 +134,8 @@ const SETTINGS_KEY = 'pi_game_settings';
 const BEST_SCORES_KEY = 'sequence_master_best_scores';
 
 const DEFAULT_BEST_SCORES: BestScores = {
-  colors: { '2x2': 0, '3x3': 0, '4x4': 0, '5x5': 0 },
-  numbers: { '2x2': 0, '3x3': 0, '4x4': 0, '5x5': 0 },
+  colors: 0,
+  numbers: 0,
   pi: 0,
 };
 
@@ -231,17 +231,11 @@ export const [SettingsProvider, useSettings] = createContextHook(() => {
     setGameConfig(prev => ({ ...prev, ...config }));
   }, []);
 
-  const updateBestScore = useCallback(async (mode: GameMode, score: number, gridSize?: GridSize) => {
+  const updateBestScore = useCallback(async (mode: GameMode, score: number) => {
     setBestScores(prev => {
       const newScores = { ...prev };
-      if (mode === 'pi') {
-        if (score > newScores.pi) {
-          newScores.pi = score;
-        }
-      } else if (gridSize) {
-        if (score > newScores[mode][gridSize]) {
-          newScores[mode][gridSize] = score;
-        }
+      if (score > newScores[mode]) {
+        newScores[mode] = score;
       }
       AsyncStorage.setItem(BEST_SCORES_KEY, JSON.stringify(newScores)).catch(error => {
         console.error('Failed to save best scores:', error);

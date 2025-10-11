@@ -116,9 +116,9 @@ export default function ColorsGameScreen() {
     setIsCorrect(correct);
 
     if (correct) {
-      const currentBest = bestScores.colors[gameConfig.gridSize];
+      const currentBest = bestScores.colors;
       if (currentLevel > currentBest) {
-        updateBestScore('colors', currentLevel, gameConfig.gridSize);
+        updateBestScore('colors', currentLevel);
       }
 
       setGamePhase('result');
@@ -227,9 +227,9 @@ export default function ColorsGameScreen() {
       console.log('Correct sequence completed:', { newUserSequence, sequence, correct });
       setIsCorrect(correct);
       
-      const currentBest = bestScores.colors[gameConfig.gridSize];
+      const currentBest = bestScores.colors;
       if (currentLevel > currentBest) {
-        updateBestScore('colors', currentLevel, gameConfig.gridSize);
+        updateBestScore('colors', currentLevel);
       }
 
       setGamePhase('result');
@@ -296,10 +296,9 @@ export default function ColorsGameScreen() {
                     styles.gridCell,
                     { 
                       backgroundColor: gridColors[cellIndex],
-                      opacity: isHighlighted ? 1 : (gamePhase === 'showing' ? 0.5 : 1),
-                      transform: [{ scale: isHighlighted ? 1.1 : 1 }],
                     },
                     isInUserSequence && styles.gridCellSelected,
+                    isHighlighted && styles.gridCellHighlighted,
                   ]}
                   onPress={() => handleCellPress(cellIndex)}
                   activeOpacity={0.7}
@@ -385,7 +384,7 @@ export default function ColorsGameScreen() {
                     Du nådde nivå {currentLevel}
                   </Text>
 
-                  {currentLevel > bestScores.colors[gameConfig.gridSize] && (
+                  {currentLevel > bestScores.colors && (
                     <View style={styles.newRecordBadge}>
                       <Trophy color={colors.digit.correct} size={20} />
                       <Text style={[styles.newRecordText, { color: colors.digit.correct }]}>Ny Rekord!</Text>
@@ -465,6 +464,15 @@ const styles = StyleSheet.create({
   gridCellSelected: {
     borderWidth: 3,
     borderColor: 'rgba(255, 255, 255, 0.8)',
+  },
+  gridCellHighlighted: {
+    borderWidth: 6,
+    borderColor: '#FFFFFF',
+    shadowColor: '#FFFFFF',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.8,
+    shadowRadius: 10,
+    elevation: 10,
   },
   instructionText: {
     fontSize: 18,

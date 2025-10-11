@@ -121,10 +121,10 @@ export default function SettingsScreen() {
             <Text style={[styles.sectionLabel, { color: colors.text.secondary }]}>HIGHSCORE</Text>
             <View style={[styles.settingCard, { backgroundColor: 'rgba(255, 255, 255, 0.15)' }]}>
               <View style={styles.highscoreRow}>
-                <Text style={[styles.highscoreLabel, { color: colors.text.primary }]}>Farger (3x3): {bestScores.colors['3x3']}</Text>
+                <Text style={[styles.highscoreLabel, { color: colors.text.primary }]}>Farger: {bestScores.colors}</Text>
               </View>
               <View style={styles.highscoreRow}>
-                <Text style={[styles.highscoreLabel, { color: colors.text.primary }]}>Tall (3x3): {bestScores.numbers['3x3']}</Text>
+                <Text style={[styles.highscoreLabel, { color: colors.text.primary }]}>Tall: {bestScores.numbers}</Text>
               </View>
               <View style={styles.highscoreRow}>
                 <Text style={[styles.highscoreLabel, { color: colors.text.primary }]}>Pi: {bestScores.pi}</Text>
