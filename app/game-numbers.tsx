@@ -45,25 +45,34 @@ export default function NumbersGameScreen() {
   const showSequence = useCallback(() => {
     let index = 0;
     
+    const speedConfig = {
+      easy: { show: 800, pause: 300 },
+      normal: { show: 600, pause: 200 },
+      hard: { show: 400, pause: 150 },
+    };
+    
+    const speed = speedConfig[gameConfig.difficulty];
+    
     const showNextCell = () => {
       if (index < sequence.length) {
-        setHighlightedCell(sequence[index]);
         setShowingIndex(index);
+        setHighlightedCell(sequence[index]);
         
         setTimeout(() => {
           setHighlightedCell(null);
           index++;
-          setTimeout(showNextCell, 200);
-        }, 600);
+          setTimeout(showNextCell, speed.pause);
+        }, speed.show);
       } else {
         setTimeout(() => {
           setGamePhase('input');
+          setShowingIndex(0);
         }, 500);
       }
     };
 
     showNextCell();
-  }, [sequence]);
+  }, [sequence, gameConfig.difficulty]);
 
   const startGame = useCallback(() => {
     console.log('Starting numbers game at level:', currentLevel);
@@ -318,7 +327,7 @@ export default function NumbersGameScreen() {
               </TouchableOpacity>
               <Text style={[styles.levelText, { color: colors.text.primary }]}>Nivå {currentLevel}</Text>
               <Text style={[styles.progressText, { color: colors.text.secondary }]}>
-                {gamePhase === 'showing' ? `${showingIndex + 1} / ${currentLevel}` : `${userSequence.length} / ${currentLevel}`}
+                {gamePhase === 'showing' ? `${showingIndex + 1} / ${sequence.length}` : `${userSequence.length} / ${sequence.length}`}
               </Text>
             </View>
 
