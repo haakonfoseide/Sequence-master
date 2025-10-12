@@ -173,6 +173,26 @@ export default function PiGameScreen() {
     setUserInput(prev => prev.slice(0, -1));
   }, [gamePhase]);
 
+  useEffect(() => {
+    const handleKeyPress = (e: any) => {
+      if (gamePhase !== 'input') return;
+      
+      const key = e.key || e.nativeEvent?.key;
+      if (!key) return;
+
+      if (key >= '0' && key <= '9') {
+        handleNumberPress(key);
+      } else if (key === 'Backspace' || key === 'Delete') {
+        handleBackspace();
+      }
+    };
+
+    if (Platform.OS === 'web') {
+      window.addEventListener('keydown', handleKeyPress);
+      return () => window.removeEventListener('keydown', handleKeyPress);
+    }
+  }, [gamePhase, handleNumberPress, handleBackspace]);
+
   const nextLevel = useCallback(() => {
     setCurrentLevel(prev => prev + 1);
     resultOpacity.setValue(0);
@@ -444,7 +464,7 @@ export default function PiGameScreen() {
 }
 
 const { width } = Dimensions.get('window');
-const buttonSize = Math.min((width - 96) / 3, 90);
+const buttonSize = Math.min((width - 96) / 3, 75);
 
 const styles = StyleSheet.create({
   container: {
@@ -469,8 +489,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 40,
-    marginTop: 40,
+    marginBottom: 20,
+    marginTop: 20,
   },
   backButton: {
     width: 40,
@@ -504,8 +524,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   inputDisplayCompact: {
-    paddingTop: 20,
-    paddingBottom: 12,
+    paddingTop: 12,
+    paddingBottom: 8,
   },
   inputLabel: {
     fontSize: 18,
@@ -531,7 +551,7 @@ const styles = StyleSheet.create({
   },
   numberPad: {
     alignItems: 'center',
-    paddingVertical: 8,
+    paddingVertical: 4,
   },
   adSpace: {
     height: 60,
@@ -549,8 +569,8 @@ const styles = StyleSheet.create({
   numberPadRow: {
     flexDirection: 'row',
     justifyContent: 'center',
-    gap: 12,
-    marginBottom: 12,
+    gap: 10,
+    marginBottom: 8,
   },
   numberButton: {
     width: buttonSize,
@@ -564,7 +584,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255, 255, 255, 0.15)',
   },
   numberButtonText: {
-    fontSize: 28,
+    fontSize: 24,
     fontWeight: '600' as const,
   },
   resultContainer: {
