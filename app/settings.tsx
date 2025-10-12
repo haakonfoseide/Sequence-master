@@ -16,6 +16,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useSettings, Theme } from '@/contexts/SettingsContext';
 import { purchaseProduct, restorePurchases } from '@/services/purchaseService';
 import { showLeaderboard } from '@/services/gameCenterService';
+import { AD_BANNER_HEIGHT } from '@/components/AdBanner';
 
 const THEME_OPTIONS: { value: Theme; label: string; emoji: string }[] = [
   { value: 'purple', label: 'Lilla', emoji: '💜' },
@@ -35,12 +36,14 @@ export default function SettingsScreen() {
   const [showResetConfirm, setShowResetConfirm] = useState<boolean>(false);
   const [showThemePicker, setShowThemePicker] = useState<boolean>(false);
 
+  const adBannerSpace = adsRemoved ? 0 : AD_BANNER_HEIGHT;
+
   return (
     <LinearGradient
       colors={[colors.background.start, colors.background.end]}
       style={styles.container}
     >
-      <View style={[styles.safeArea, { paddingTop: insets.top + 20, paddingBottom: insets.bottom + 20 }]}>
+      <View style={[styles.safeArea, { paddingTop: insets.top + 20, paddingBottom: insets.bottom + adBannerSpace + 20 }]}>
         <View style={styles.header}>
           <TouchableOpacity
             style={styles.backButton}

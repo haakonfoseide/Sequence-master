@@ -16,13 +16,14 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useSettings } from '@/contexts/SettingsContext';
 import { useBackgroundMusic } from '@/hooks/useBackgroundMusic';
+import { AD_BANNER_HEIGHT } from '@/components/AdBanner';
 
 type GamePhase = 'showing' | 'input' | 'result';
 
 export default function NumbersGameScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
-  const { colors, gameConfig, updateBestScore, bestScores, hapticsEnabled, musicEnabled } = useSettings();
+  const { colors, gameConfig, updateBestScore, bestScores, hapticsEnabled, musicEnabled, adsRemoved } = useSettings();
   
   useBackgroundMusic('numbers', musicEnabled);
   const [gamePhase, setGamePhase] = useState<GamePhase>('showing');
@@ -250,12 +251,14 @@ export default function NumbersGameScreen() {
     );
   }, [gridSize, highlightedCell, userSequence, gamePhase, colors, handleCellPress]);
 
+  const adBannerSpace = adsRemoved ? 0 : AD_BANNER_HEIGHT;
+
   return (
     <LinearGradient
       colors={[colors.background.start, colors.background.end]}
       style={styles.container}
     >
-      <View style={[styles.safeArea, { paddingTop: insets.top + 20, paddingBottom: insets.bottom + 20 }]}>
+      <View style={[styles.safeArea, { paddingTop: insets.top + 20, paddingBottom: insets.bottom + adBannerSpace + 20 }]}>
         {(gamePhase === 'showing' || gamePhase === 'input') && (
           <View style={styles.gameScreen}>
             <View style={styles.levelHeader}>

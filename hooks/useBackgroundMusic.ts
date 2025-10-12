@@ -27,11 +27,23 @@ export function useBackgroundMusic(theme: MusicTheme, enabled: boolean = true) {
     isMountedRef.current = true;
 
     const loadAndPlayMusic = async () => {
-      if (!enabled || isLoadingRef.current) return;
+      if (isLoadingRef.current) return;
 
       if (globalSound && globalTheme === theme) {
-        console.log(`Music already playing for theme: ${theme}`);
+        console.log(`Music already loaded for theme: ${theme}`);
         soundRef.current = globalSound;
+        
+        if (enabled) {
+          try {
+            const status = await globalSound.getStatusAsync();
+            if (status.isLoaded && !status.isPlaying) {
+              console.log(`Resuming music for theme: ${theme}`);
+              await globalSound.playAsync();
+            }
+          } catch (err) {
+            console.error('Error resuming sound:', err);
+          }
+        }
         return;
       }
 
@@ -44,6 +56,11 @@ export function useBackgroundMusic(theme: MusicTheme, enabled: boolean = true) {
         }
         globalSound = null;
         globalTheme = null;
+      }
+
+      if (!enabled) {
+        console.log('Music disabled, not loading');
+        return;
       }
 
       try {
@@ -90,8 +107,24 @@ export function useBackgroundMusic(theme: MusicTheme, enabled: boolean = true) {
       }
     };
 
+    const stopMusic = async () => {
+      if (globalSound) {
+        try {
+          const status = await globalSound.getStatusAsync();
+          if (status.isLoaded && status.isPlaying) {
+            console.log(`Pausing music for theme: ${globalTheme}`);
+            await globalSound.pauseAsync();
+          }
+        } catch (err) {
+          console.error('Error pausing sound:', err);
+        }
+      }
+    };
+
     if (enabled) {
       loadAndPlayMusic();
+    } else {
+      stopMusic();
     }
 
     return () => {

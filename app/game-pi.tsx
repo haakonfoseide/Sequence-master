@@ -17,13 +17,14 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useSettings } from '@/contexts/SettingsContext';
 import { PI_DIGITS } from '@/constants/pi';
 import { useBackgroundMusic } from '@/hooks/useBackgroundMusic';
+import { AD_BANNER_HEIGHT } from '@/components/AdBanner';
 
 type GamePhase = 'showing' | 'input' | 'result';
 
 export default function PiGameScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
-  const { colors, gameConfig, updateBestScore, bestScores, musicEnabled } = useSettings();
+  const { colors, gameConfig, updateBestScore, bestScores, musicEnabled, adsRemoved } = useSettings();
   
   useBackgroundMusic('pi', musicEnabled);
   const [gamePhase, setGamePhase] = useState<GamePhase>('showing');
@@ -249,12 +250,14 @@ export default function PiGameScreen() {
     );
   }, [colors.text.primary, handleBackspace, handleNumberPress]);
 
+  const adBannerSpace = adsRemoved ? 0 : AD_BANNER_HEIGHT;
+
   return (
     <LinearGradient
       colors={[colors.background.start, colors.background.end]}
       style={styles.container}
     >
-      <View style={[styles.safeArea, { paddingTop: insets.top + 20, paddingBottom: insets.bottom + 20 }]}>
+      <View style={[styles.safeArea, { paddingTop: insets.top + 20, paddingBottom: insets.bottom + adBannerSpace }]}>
         {gamePhase === 'showing' && (
           <View style={styles.gameScreen}>
             <View style={styles.levelHeader}>
@@ -346,9 +349,9 @@ export default function PiGameScreen() {
 
             <View style={styles.flexSpacer} />
 
-            {renderNumberPad()}
-
-
+            <View style={styles.numberPadContainer}>
+              {renderNumberPad()}
+            </View>
           </KeyboardAvoidingView>
         )}
 
@@ -544,6 +547,9 @@ const styles = StyleSheet.create({
   inputProgress: {
     fontSize: 16,
     marginTop: 8,
+  },
+  numberPadContainer: {
+    paddingBottom: 8,
   },
   numberPad: {
     alignItems: 'center',

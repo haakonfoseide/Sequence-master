@@ -19,13 +19,14 @@ import { GRID_COLORS } from '@/constants/gridColors';
 import { useBackgroundMusic } from '@/hooks/useBackgroundMusic';
 import { shareChallenge } from '@/services/sharingService';
 import { submitScore } from '@/services/gameCenterService';
+import { AD_BANNER_HEIGHT } from '@/components/AdBanner';
 
 type GamePhase = 'showing' | 'input' | 'result';
 
 export default function ColorsGameScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
-  const { colors, gameConfig, updateBestScore, bestScores, hapticsEnabled, musicEnabled } = useSettings();
+  const { colors, gameConfig, updateBestScore, bestScores, hapticsEnabled, musicEnabled, adsRemoved } = useSettings();
   
   useBackgroundMusic('colors', musicEnabled);
   const [gamePhase, setGamePhase] = useState<GamePhase>('showing');
@@ -249,12 +250,14 @@ export default function ColorsGameScreen() {
     );
   }, [gridSize, gridColors, highlightedCell, userSequence, gamePhase, handleCellPress]);
 
+  const adBannerSpace = adsRemoved ? 0 : AD_BANNER_HEIGHT;
+
   return (
     <LinearGradient
       colors={[colors.background.start, colors.background.end]}
       style={styles.container}
     >
-      <View style={[styles.safeArea, { paddingTop: insets.top + 20, paddingBottom: insets.bottom + 20 }]}>
+      <View style={[styles.safeArea, { paddingTop: insets.top + 20, paddingBottom: insets.bottom + adBannerSpace + 20 }]}>
         {(gamePhase === 'showing' || gamePhase === 'input') && (
           <View style={styles.gameScreen}>
             <View style={styles.levelHeader}>

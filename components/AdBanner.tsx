@@ -4,6 +4,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useSettings } from '@/contexts/SettingsContext';
 
+export const AD_BANNER_HEIGHT = 60;
+
 export function AdBanner() {
   const insets = useSafeAreaInsets();
   const { adsRemoved, colors } = useSettings();
@@ -13,7 +15,7 @@ export function AdBanner() {
   }
 
   return (
-    <View style={[styles.adContainer, { paddingBottom: insets.bottom }]}>
+    <View style={[styles.adContainer, { height: AD_BANNER_HEIGHT + insets.bottom, paddingBottom: insets.bottom }]}>
       <View style={[styles.adBox, { backgroundColor: colors.button.secondary }]}>
         <Text style={[styles.adText, { color: colors.text.primary }]}>Annonse</Text>
       </View>
@@ -30,7 +32,7 @@ const styles = StyleSheet.create({
     zIndex: 1000,
   },
   adBox: {
-    height: 60,
+    height: AD_BANNER_HEIGHT,
     justifyContent: 'center',
     alignItems: 'center',
     borderTopWidth: 1,
