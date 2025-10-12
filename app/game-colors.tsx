@@ -1,6 +1,6 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
-import { Trophy, RotateCcw, ArrowLeft } from 'lucide-react-native';
+import { Trophy, RotateCcw, ArrowLeft, Share2 } from 'lucide-react-native';
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import {
   StyleSheet,
@@ -17,13 +17,15 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useSettings } from '@/contexts/SettingsContext';
 import { GRID_COLORS } from '@/constants/gridColors';
 import { useBackgroundMusic } from '@/hooks/useBackgroundMusic';
+import { shareChallenge } from '@/services/sharingService';
+import { submitScore } from '@/services/gameCenterService';
 
 type GamePhase = 'showing' | 'input' | 'result';
 
 export default function ColorsGameScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
-  const { colors, gameConfig, updateBestScore, bestScores, hapticsEnabled, musicEnabled } = useSettings();
+  const { colors, gameConfig, updateBestScore, bestScores, hapticsEnabled, musicEnabled, adsRemoved } = useSettings();
   
   useBackgroundMusic('colors', musicEnabled);
   const [gamePhase, setGamePhase] = useState<GamePhase>('showing');
@@ -36,7 +38,7 @@ export default function ColorsGameScreen() {
 
   const resultOpacity = useRef(new Animated.Value(0)).current;
   const shakeAnimation = useRef(new Animated.Value(0)).current;
-  const nextLevelTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const nextLevelTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const gridSize = parseInt(gameConfig.gridSize.split('x')[0], 10);
   const totalCells = gridSize * gridSize;
@@ -342,9 +344,11 @@ export default function ColorsGameScreen() {
               {gamePhase === 'showing' ? 'Husk sekvensen...' : 'Trykk på fargene i riktig rekkefølge'}
             </Text>
 
-            <View style={styles.adSpace}>
-              <Text style={[styles.adSpaceText, { color: colors.text.secondary }]}>Annonse</Text>
-            </View>
+            {!adsRemoved && (
+              <View style={styles.adSpace}>
+                <Text style={[styles.adSpaceText, { color: colors.text.secondary }]}>Annonse</Text>
+              </View>
+            )}
           </View>
         )}
 
@@ -391,14 +395,31 @@ export default function ColorsGameScreen() {
                     </View>
                   )}
 
-                  <TouchableOpacity
-                    style={[styles.restartButton, { backgroundColor: colors.button.primary }]}
-                    onPress={restartGame}
-                    activeOpacity={0.8}
-                  >
-                    <RotateCcw color={colors.button.primaryText} size={20} />
-                    <Text style={[styles.restartButtonText, { color: colors.button.primaryText }]}>Prøv Igjen</Text>
-                  </TouchableOpacity>
+                  <View style={styles.buttonRow}>
+                    <TouchableOpacity
+                      style={[styles.restartButton, { backgroundColor: colors.button.primary }]}
+                      onPress={restartGame}
+                      activeOpacity={0.8}
+                    >
+                      <RotateCcw color={colors.button.primaryText} size={20} />
+                      <Text style={[styles.restartButtonText, { color: colors.button.primaryText }]}>Prøv Igjen</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={[styles.shareButton, { backgroundColor: 'rgba(255, 255, 255, 0.2)' }]}
+                      onPress={() => {
+                        shareChallenge({
+                          mode: 'colors',
+                          score: currentLevel,
+                          difficulty: gameConfig.difficulty,
+                          gridSize: gameConfig.gridSize,
+                        });
+                        submitScore('colors', currentLevel);
+                      }}
+                      activeOpacity={0.8}
+                    >
+                      <Share2 color={colors.text.primary} size={20} />
+                    </TouchableOpacity>
+                  </View>
                 </>
               )}
             </View>
@@ -537,15 +558,30 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   restartButton: {
+    flex: 1,
     borderRadius: 16,
     paddingVertical: 18,
     paddingHorizontal: 32,
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
     gap: 12,
   },
   restartButtonText: {
     fontSize: 18,
     fontWeight: '700' as const,
+  },
+  buttonRow: {
+    flexDirection: 'row',
+    gap: 12,
+    width: '100%',
+    paddingHorizontal: 24,
+  },
+  shareButton: {
+    borderRadius: 16,
+    paddingVertical: 18,
+    paddingHorizontal: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });

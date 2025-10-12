@@ -216,6 +216,7 @@ const THEMES: Record<Theme, ThemeColors> = {
 
 const SETTINGS_KEY = 'pi_game_settings';
 const BEST_SCORES_KEY = 'sequence_master_best_scores';
+const AD_REMOVAL_KEY = 'sequence_master_ad_removal';
 
 const DEFAULT_BEST_SCORES: BestScores = {
   colors: 0,
@@ -227,6 +228,7 @@ export const [SettingsProvider, useSettings] = createContextHook(() => {
   const [theme, setTheme] = useState<Theme>('orange');
   const [musicEnabled, setMusicEnabled] = useState<boolean>(true);
   const [hapticsEnabled, setHapticsEnabled] = useState<boolean>(true);
+  const [adsRemoved, setAdsRemoved] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [gameConfig, setGameConfig] = useState<GameConfig>({
     mode: 'pi',
@@ -239,6 +241,7 @@ export const [SettingsProvider, useSettings] = createContextHook(() => {
   useEffect(() => {
     loadSettings();
     loadBestScores();
+    loadAdRemovalStatus();
   }, []);
 
   const loadSettings = async () => {
@@ -346,12 +349,33 @@ export const [SettingsProvider, useSettings] = createContextHook(() => {
     }
   }, []);
 
+  const loadAdRemovalStatus = async () => {
+    try {
+      const stored = await AsyncStorage.getItem(AD_REMOVAL_KEY);
+      if (stored) {
+        setAdsRemoved(stored === 'true');
+      }
+    } catch (error) {
+      console.error('Failed to load ad removal status:', error);
+    }
+  };
+
+  const setAdRemovalStatus = useCallback(async (removed: boolean) => {
+    setAdsRemoved(removed);
+    try {
+      await AsyncStorage.setItem(AD_REMOVAL_KEY, removed ? 'true' : 'false');
+    } catch (error) {
+      console.error('Failed to save ad removal status:', error);
+    }
+  }, []);
+
   const colors = THEMES[theme];
 
   return useMemo(() => ({
     theme,
     musicEnabled,
     hapticsEnabled,
+    adsRemoved,
     colors,
     isLoading,
     gameConfig,
@@ -362,5 +386,6 @@ export const [SettingsProvider, useSettings] = createContextHook(() => {
     updateGameConfig,
     updateBestScore,
     resetBestScores,
-  }), [theme, musicEnabled, hapticsEnabled, colors, isLoading, gameConfig, bestScores, updateTheme, toggleMusic, toggleHaptics, updateGameConfig, updateBestScore, resetBestScores]);
+    setAdRemovalStatus,
+  }), [theme, musicEnabled, hapticsEnabled, adsRemoved, colors, isLoading, gameConfig, bestScores, updateTheme, toggleMusic, toggleHaptics, updateGameConfig, updateBestScore, resetBestScores, setAdRemovalStatus]);
 });

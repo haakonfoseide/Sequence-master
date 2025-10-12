@@ -14,6 +14,8 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useSettings, Theme } from '@/contexts/SettingsContext';
+import { purchaseProduct, restorePurchases } from '@/services/purchaseService';
+import { showLeaderboard } from '@/services/gameCenterService';
 
 const THEME_OPTIONS: { value: Theme; label: string; emoji: string }[] = [
   { value: 'purple', label: 'Lilla', emoji: '💜' },
@@ -29,7 +31,7 @@ const THEME_OPTIONS: { value: Theme; label: string; emoji: string }[] = [
 export default function SettingsScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
-  const { theme, musicEnabled, hapticsEnabled, colors, bestScores, updateTheme, toggleMusic, toggleHaptics, resetBestScores } = useSettings();
+  const { theme, musicEnabled, hapticsEnabled, adsRemoved, colors, bestScores, updateTheme, toggleMusic, toggleHaptics, resetBestScores, setAdRemovalStatus } = useSettings();
   const [showResetConfirm, setShowResetConfirm] = useState<boolean>(false);
   const [showThemePicker, setShowThemePicker] = useState<boolean>(false);
 
@@ -110,14 +112,63 @@ export default function SettingsScreen() {
             <Text style={[styles.sectionLabel, { color: colors.text.secondary }]}>ANNONSER</Text>
             <View style={[styles.settingCard, { backgroundColor: 'rgba(255, 255, 255, 0.15)' }]}>
               <View style={styles.settingRow}>
-                <Text style={[styles.settingLabel, { color: colors.text.primary }]}>Fjern reklame (Pro)</Text>
-                <Switch
-                  value={false}
-                  onValueChange={() => {}}
-                  trackColor={{ false: 'rgba(255, 255, 255, 0.2)', true: colors.button.primary }}
-                  thumbColor={'#f4f3f4'}
-                />
+                <View style={styles.settingInfo}>
+                  <Text style={[styles.settingLabel, { color: colors.text.primary }]}>Fjern reklame (Pro)</Text>
+                  {adsRemoved && (
+                    <Text style={[styles.settingSubtext, { color: colors.text.secondary }]}>Aktivert ✓</Text>
+                  )}
+                </View>
+                {!adsRemoved ? (
+                  <TouchableOpacity
+                    style={[styles.purchaseButton, { backgroundColor: colors.button.primary }]}
+                    onPress={async () => {
+                      const success = await purchaseProduct('com.sequencemaster.removeads');
+                      if (success) {
+                        setAdRemovalStatus(true);
+                      }
+                    }}
+                    activeOpacity={0.7}
+                  >
+                    <Text style={[styles.purchaseButtonText, { color: colors.button.primaryText }]}>Kjøp</Text>
+                  </TouchableOpacity>
+                ) : (
+                  <Switch
+                    value={true}
+                    onValueChange={() => {}}
+                    trackColor={{ false: 'rgba(255, 255, 255, 0.2)', true: colors.button.primary }}
+                    thumbColor={colors.button.primaryText}
+                    disabled
+                  />
+                )}
               </View>
+              {!adsRemoved && (
+                <TouchableOpacity
+                  style={[styles.restoreButton, { backgroundColor: 'rgba(255, 255, 255, 0.1)' }]}
+                  onPress={async () => {
+                    const purchases = await restorePurchases();
+                    if (purchases.includes('com.sequencemaster.removeads')) {
+                      setAdRemovalStatus(true);
+                    }
+                  }}
+                  activeOpacity={0.7}
+                >
+                  <Text style={[styles.restoreButtonText, { color: colors.text.secondary }]}>Gjenopprett kjøp</Text>
+                </TouchableOpacity>
+              )}
+            </View>
+          </View>
+
+          <View style={styles.section}>
+            <Text style={[styles.sectionLabel, { color: colors.text.secondary }]}>GAME CENTER</Text>
+            <View style={[styles.settingCard, { backgroundColor: 'rgba(255, 255, 255, 0.15)' }]}>
+              <TouchableOpacity
+                style={styles.settingRow}
+                onPress={() => showLeaderboard()}
+                activeOpacity={0.7}
+              >
+                <Text style={[styles.settingLabel, { color: colors.text.primary }]}>Vis Leaderboards</Text>
+                <Text style={[styles.settingValue, { color: colors.text.secondary }]}>›</Text>
+              </TouchableOpacity>
             </View>
           </View>
 
@@ -307,6 +358,36 @@ const styles = StyleSheet.create({
   resetButtonText: {
     fontSize: 16,
     fontWeight: '600' as const,
+  },
+  settingInfo: {
+    flex: 1,
+  },
+  settingSubtext: {
+    fontSize: 12,
+    marginTop: 4,
+  },
+  settingValue: {
+    fontSize: 18,
+    fontWeight: '600' as const,
+  },
+  purchaseButton: {
+    borderRadius: 8,
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+  },
+  purchaseButtonText: {
+    fontSize: 14,
+    fontWeight: '600' as const,
+  },
+  restoreButton: {
+    marginTop: 12,
+    borderRadius: 8,
+    paddingVertical: 8,
+    alignItems: 'center',
+  },
+  restoreButtonText: {
+    fontSize: 14,
+    fontWeight: '500' as const,
   },
   modalOverlay: {
     flex: 1,
