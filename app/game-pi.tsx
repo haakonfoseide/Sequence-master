@@ -289,35 +289,33 @@ export default function PiGameScreen() {
               <View style={styles.placeholder} />
             </View>
 
-            <View style={styles.inputDisplay}>
-              <View>
-                <Text style={[styles.inputLabel, { color: colors.text.secondary }]}>
-                  {piMode === 'sequence' ? 'Skriv inn sekvensen:' : 'Skriv inn π-sifrene:'}
+            <View style={styles.inputDisplayCompact}>
+              <Text style={[styles.inputLabel, { color: colors.text.secondary }]}>
+                {piMode === 'sequence' ? 'Skriv inn sekvensen:' : 'Skriv inn π-sifrene:'}
+              </Text>
+              <Animated.View
+                style={[
+                  styles.inputBox,
+                  {
+                    transform: [{ translateX: shakeAnimation }],
+                  },
+                ]}
+              >
+                <Text style={[
+                  styles.inputText, 
+                  { 
+                    color: colors.text.primary,
+                    fontSize: piMode === 'free' && userInput.length > 20 
+                      ? Math.max(16, 32 - Math.floor((userInput.length - 20) / 5) * 2)
+                      : 32
+                  }
+                ]}>
+                  {userInput || ' '}
                 </Text>
-                <Animated.View
-                  style={[
-                    styles.inputBox,
-                    {
-                      transform: [{ translateX: shakeAnimation }],
-                    },
-                  ]}
-                >
-                  <Text style={[
-                    styles.inputText, 
-                    { 
-                      color: colors.text.primary,
-                      fontSize: piMode === 'free' && userInput.length > 20 
-                        ? Math.max(16, 32 - Math.floor((userInput.length - 20) / 5) * 2)
-                        : 32
-                    }
-                  ]}>
-                    {userInput || ' '}
-                  </Text>
-                  <Text style={[styles.inputProgress, { color: colors.text.secondary }]}>
-                    {piMode === 'free' ? `${userInput.length} sifre` : `${userInput.length} / ${currentLevel}`}
-                  </Text>
-                </Animated.View>
-              </View>
+                <Text style={[styles.inputProgress, { color: colors.text.secondary }]}>
+                  {piMode === 'free' ? `${userInput.length} sifre` : `${userInput.length} / ${currentLevel}`}
+                </Text>
+              </Animated.View>
             </View>
 
             {renderNumberPad()}
@@ -491,6 +489,9 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
   },
+  inputDisplayCompact: {
+    paddingVertical: 20,
+  },
   inputLabel: {
     fontSize: 18,
     textAlign: 'center',
@@ -515,7 +516,7 @@ const styles = StyleSheet.create({
   },
   numberPad: {
     alignItems: 'center',
-    paddingBottom: 0,
+    paddingBottom: 8,
   },
   adSpace: {
     height: 60,

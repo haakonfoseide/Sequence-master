@@ -87,16 +87,6 @@ export default function SettingsScreen() {
               </View>
               <View style={styles.divider} />
               <View style={styles.settingRow}>
-                <Text style={[styles.settingLabel, { color: colors.text.primary }]}>Lyd</Text>
-                <Switch
-                  value={true}
-                  onValueChange={() => {}}
-                  trackColor={{ false: 'rgba(255, 255, 255, 0.2)', true: colors.button.primary }}
-                  thumbColor={colors.button.primaryText}
-                />
-              </View>
-              <View style={styles.divider} />
-              <View style={styles.settingRow}>
                 <Text style={[styles.settingLabel, { color: colors.text.primary }]}>Haptisk Feedback</Text>
                 <Switch
                   value={hapticsEnabled}
