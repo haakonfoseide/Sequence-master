@@ -20,6 +20,10 @@ const THEME_OPTIONS: { value: Theme; label: string; emoji: string }[] = [
   { value: 'blue', label: 'Blå', emoji: '💙' },
   { value: 'green', label: 'Grønn', emoji: '💚' },
   { value: 'orange', label: 'Oransje', emoji: '🧡' },
+  { value: 'pink', label: 'Rosa', emoji: '💗' },
+  { value: 'red', label: 'Rød', emoji: '❤️' },
+  { value: 'teal', label: 'Turkis', emoji: '💎' },
+  { value: 'indigo', label: 'Indigo', emoji: '🔮' },
 ];
 
 export default function SettingsScreen() {
@@ -59,7 +63,7 @@ export default function SettingsScreen() {
                 <Text style={[styles.settingLabel, { color: colors.text.primary }]}>Tema</Text>
                 <View style={styles.themeSelector}>
                   <Text style={[styles.themeValue, { color: colors.text.primary }]}>
-                    {theme === 'orange' ? 'Oransje' : theme === 'blue' ? 'Blå' : theme === 'green' ? 'Grønn' : 'Lilla'}
+                    {THEME_OPTIONS.find(t => t.value === theme)?.label || 'Oransje'}
                   </Text>
                   <View style={[styles.themeDot, { backgroundColor: colors.background.start }]} />
                 </View>

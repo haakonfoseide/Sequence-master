@@ -6,8 +6,8 @@ type MusicTheme = 'pi' | 'colors' | 'numbers';
 
 const MUSIC_URLS: Record<MusicTheme, string> = {
   pi: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
-  colors: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3',
-  numbers: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3',
+  colors: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3',
+  numbers: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3',
 };
 
 let globalSound: Audio.Sound | null = null;

@@ -2,7 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import createContextHook from '@nkzw/create-context-hook';
 import { useState, useEffect, useCallback, useMemo } from 'react';
 
-export type Theme = 'purple' | 'blue' | 'green' | 'orange';
+export type Theme = 'purple' | 'blue' | 'green' | 'orange' | 'pink' | 'red' | 'teal' | 'indigo';
 export type GameMode = 'colors' | 'numbers' | 'pi';
 export type PiMode = 'sequence' | 'free' | 'learn';
 export type Difficulty = 'easy' | 'normal' | 'hard';
@@ -46,8 +46,8 @@ export interface ThemeColors {
 const THEMES: Record<Theme, ThemeColors> = {
   purple: {
     background: {
-      start: '#10B981',
-      end: '#059669',
+      start: '#9333EA',
+      end: '#7C3AED',
     },
     digit: {
       display: '#FFFFFF',
@@ -55,8 +55,8 @@ const THEMES: Record<Theme, ThemeColors> = {
       incorrect: '#EF4444',
     },
     button: {
-      primary: '#10B981',
-      primaryText: '#FFFFFF',
+      primary: '#FFFFFF',
+      primaryText: '#9333EA',
       secondary: 'rgba(255, 255, 255, 0.2)',
       secondaryText: '#FFFFFF',
     },
@@ -120,6 +120,90 @@ const THEMES: Record<Theme, ThemeColors> = {
     button: {
       primary: '#FFFFFF',
       primaryText: '#F97316',
+      secondary: 'rgba(255, 255, 255, 0.2)',
+      secondaryText: '#FFFFFF',
+    },
+    text: {
+      primary: '#FFFFFF',
+      secondary: 'rgba(255, 255, 255, 0.8)',
+    },
+  },
+  pink: {
+    background: {
+      start: '#EC4899',
+      end: '#DB2777',
+    },
+    digit: {
+      display: '#FFFFFF',
+      correct: '#10B981',
+      incorrect: '#EF4444',
+    },
+    button: {
+      primary: '#FFFFFF',
+      primaryText: '#EC4899',
+      secondary: 'rgba(255, 255, 255, 0.2)',
+      secondaryText: '#FFFFFF',
+    },
+    text: {
+      primary: '#FFFFFF',
+      secondary: 'rgba(255, 255, 255, 0.8)',
+    },
+  },
+  red: {
+    background: {
+      start: '#EF4444',
+      end: '#DC2626',
+    },
+    digit: {
+      display: '#FFFFFF',
+      correct: '#10B981',
+      incorrect: '#FCD34D',
+    },
+    button: {
+      primary: '#FFFFFF',
+      primaryText: '#EF4444',
+      secondary: 'rgba(255, 255, 255, 0.2)',
+      secondaryText: '#FFFFFF',
+    },
+    text: {
+      primary: '#FFFFFF',
+      secondary: 'rgba(255, 255, 255, 0.8)',
+    },
+  },
+  teal: {
+    background: {
+      start: '#14B8A6',
+      end: '#0D9488',
+    },
+    digit: {
+      display: '#FFFFFF',
+      correct: '#10B981',
+      incorrect: '#EF4444',
+    },
+    button: {
+      primary: '#FFFFFF',
+      primaryText: '#14B8A6',
+      secondary: 'rgba(255, 255, 255, 0.2)',
+      secondaryText: '#FFFFFF',
+    },
+    text: {
+      primary: '#FFFFFF',
+      secondary: 'rgba(255, 255, 255, 0.8)',
+    },
+  },
+  indigo: {
+    background: {
+      start: '#6366F1',
+      end: '#4F46E5',
+    },
+    digit: {
+      display: '#FFFFFF',
+      correct: '#10B981',
+      incorrect: '#EF4444',
+    },
+    button: {
+      primary: '#FFFFFF',
+      primaryText: '#6366F1',
       secondary: 'rgba(255, 255, 255, 0.2)',
       secondaryText: '#FFFFFF',
     },

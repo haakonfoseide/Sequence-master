@@ -15,13 +15,12 @@ import { useBackgroundMusic } from '@/hooks/useBackgroundMusic';
 export default function HomeScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
-  const { colors, bestScores, gameConfig, musicEnabled } = useSettings();
+  const { colors, bestScores, musicEnabled } = useSettings();
   
   useBackgroundMusic('pi', musicEnabled);
 
-  const getGridBestScore = (mode: 'colors' | 'numbers') => {
-    const gridSize = gameConfig.gridSize;
-    return bestScores[mode][gridSize];
+  const getBestScore = (mode: 'colors' | 'numbers' | 'pi') => {
+    return bestScores[mode] || 0;
   };
 
   return (
@@ -58,15 +57,15 @@ export default function HomeScreen() {
             <View style={styles.recordsBox}>
               <View style={styles.recordRow}>
                 <Text style={[styles.recordLabel, { color: colors.text.primary }]}>Farger</Text>
-                <Text style={[styles.recordValue, { color: colors.text.primary }]}>{getGridBestScore('colors')}</Text>
+                <Text style={[styles.recordValue, { color: colors.text.primary }]}>{getBestScore('colors')}</Text>
               </View>
               <View style={styles.recordRow}>
                 <Text style={[styles.recordLabel, { color: colors.text.primary }]}>Tall</Text>
-                <Text style={[styles.recordValue, { color: colors.text.primary }]}>{getGridBestScore('numbers')}</Text>
+                <Text style={[styles.recordValue, { color: colors.text.primary }]}>{getBestScore('numbers')}</Text>
               </View>
               <View style={styles.recordRow}>
                 <Text style={[styles.recordLabel, { color: colors.text.primary }]}>Pi</Text>
-                <Text style={[styles.recordValue, { color: colors.text.primary }]}>{bestScores.pi}</Text>
+                <Text style={[styles.recordValue, { color: colors.text.primary }]}>{getBestScore('pi')}</Text>
               </View>
             </View>
           </View>
