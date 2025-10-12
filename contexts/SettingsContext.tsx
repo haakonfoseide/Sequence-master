@@ -19,6 +19,7 @@ export interface BestScores {
   colors: number;
   numbers: number;
   pi: number;
+  piFree: number;
 }
 
 export interface ThemeColors {
@@ -222,6 +223,7 @@ const DEFAULT_BEST_SCORES: BestScores = {
   colors: 0,
   numbers: 0,
   pi: 0,
+  piFree: 0,
 };
 
 export const [SettingsProvider, useSettings] = createContextHook(() => {
@@ -282,7 +284,10 @@ export const [SettingsProvider, useSettings] = createContextHook(() => {
               typeof scores.colors === 'number' && 
               typeof scores.numbers === 'number' && 
               typeof scores.pi === 'number') {
-            setBestScores(scores);
+            setBestScores({
+              ...DEFAULT_BEST_SCORES,
+              ...scores,
+            });
           } else {
             console.log('Invalid best scores structure, resetting to defaults');
             await AsyncStorage.removeItem(BEST_SCORES_KEY);
@@ -331,11 +336,11 @@ export const [SettingsProvider, useSettings] = createContextHook(() => {
     setGameConfig(prev => ({ ...prev, ...config }));
   }, []);
 
-  const updateBestScore = useCallback(async (mode: GameMode, score: number) => {
+  const updateBestScore = useCallback(async (mode: GameMode | 'piFree', score: number) => {
     setBestScores(prev => {
       const newScores = { ...prev };
-      if (score > newScores[mode]) {
-        newScores[mode] = score;
+      if (score > newScores[mode as keyof BestScores]) {
+        newScores[mode as keyof BestScores] = score;
       }
       AsyncStorage.setItem(BEST_SCORES_KEY, JSON.stringify(newScores)).catch(error => {
         console.error('Failed to save best scores:', error);

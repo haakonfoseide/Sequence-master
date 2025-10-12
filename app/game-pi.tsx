@@ -110,8 +110,8 @@ export default function PiGameScreen() {
 
       if (piMode === 'sequence' && currentLevel > bestScores.pi) {
         updateBestScore('pi', currentLevel);
-      } else if (piMode === 'free' && input.length > bestScores.pi) {
-        updateBestScore('pi', input.length);
+      } else if (piMode === 'free' && input.length > bestScores.piFree) {
+        updateBestScore('piFree', input.length);
       }
     } else {
       Animated.sequence([
@@ -143,7 +143,7 @@ export default function PiGameScreen() {
         useNativeDriver: true,
       }).start();
     }
-  }, [currentLevel, bestScores.pi, resultOpacity, shakeAnimation, piMode, updateBestScore]);
+  }, [currentLevel, bestScores.pi, bestScores.piFree, resultOpacity, shakeAnimation, piMode, updateBestScore]);
 
   const handleNumberPress = useCallback((num: string) => {
     if (gamePhase !== 'input') return;
@@ -437,7 +437,7 @@ export default function PiGameScreen() {
                   </View>
 
                   {((piMode === 'sequence' && currentLevel > bestScores.pi) || 
-                    (piMode === 'free' && userInput.length - 1 > bestScores.pi)) && (
+                    (piMode === 'free' && userInput.length - 1 > bestScores.piFree)) && (
                     <View style={styles.newRecordBadge}>
                       <Trophy color={colors.digit.correct} size={20} />
                       <Text style={[styles.newRecordText, { color: colors.digit.correct }]}>Ny Rekord!</Text>

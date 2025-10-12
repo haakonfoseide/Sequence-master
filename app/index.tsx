@@ -67,8 +67,12 @@ export default function HomeScreen() {
                 <Text style={[styles.recordValue, { color: colors.text.primary }]}>{getBestScore('numbers')}</Text>
               </View>
               <View style={styles.recordRow}>
-                <Text style={[styles.recordLabel, { color: colors.text.primary }]}>Pi</Text>
+                <Text style={[styles.recordLabel, { color: colors.text.primary }]}>Pi (Frekvens)</Text>
                 <Text style={[styles.recordValue, { color: colors.text.primary }]}>{getBestScore('pi')}</Text>
+              </View>
+              <View style={styles.recordRow}>
+                <Text style={[styles.recordLabel, { color: colors.text.primary }]}>Pi (Fritt)</Text>
+                <Text style={[styles.recordValue, { color: colors.text.primary }]}>{bestScores.piFree || 0}</Text>
               </View>
             </View>
           </View>
