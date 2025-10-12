@@ -84,9 +84,7 @@ export function useBackgroundMusic(theme: MusicTheme, enabled: boolean = true) {
         }
       } catch (error: any) {
         console.log('Background music could not be loaded. Continuing without music.');
-        if (__DEV__) {
-          console.log('Music error details:', error?.message || error);
-        }
+        console.log('Music error details:', error?.message || error);
       } finally {
         isLoadingRef.current = false;
       }
