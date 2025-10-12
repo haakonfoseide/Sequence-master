@@ -9,6 +9,8 @@ import {
   TouchableOpacity,
   Animated,
   Dimensions,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -276,7 +278,11 @@ export default function PiGameScreen() {
         )}
 
         {gamePhase === 'input' && (
-          <View style={styles.gameScreen}>
+          <KeyboardAvoidingView 
+            style={styles.gameScreen}
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            keyboardVerticalOffset={0}
+          >
             <View style={styles.levelHeader}>
               <TouchableOpacity
                 style={styles.backButton}
@@ -305,9 +311,11 @@ export default function PiGameScreen() {
                   styles.inputText, 
                   { 
                     color: colors.text.primary,
-                    fontSize: piMode === 'free' && userInput.length > 20 
-                      ? Math.max(16, 32 - Math.floor((userInput.length - 20) / 5) * 2)
-                      : 32
+                    fontSize: piMode === 'free' && userInput.length > 10 
+                      ? Math.max(10, 28 - Math.floor((userInput.length - 10) / 3) * 2)
+                      : piMode === 'sequence' && userInput.length > 15
+                      ? Math.max(12, 28 - Math.floor((userInput.length - 15) / 3) * 2)
+                      : 28
                   }
                 ]}>
                   {userInput || ' '}
@@ -318,12 +326,14 @@ export default function PiGameScreen() {
               </Animated.View>
             </View>
 
+            <View style={styles.flexSpacer} />
+
             {renderNumberPad()}
 
             <View style={styles.adSpace}>
               <Text style={[styles.adSpaceText, { color: colors.text.secondary }]}>Annonse</Text>
             </View>
-          </View>
+          </KeyboardAvoidingView>
         )}
 
         {gamePhase === 'result' && (
@@ -450,13 +460,17 @@ const styles = StyleSheet.create({
   gameScreen: {
     flex: 1,
     paddingHorizontal: 24,
-    paddingTop: 40,
+  },
+  flexSpacer: {
+    flex: 1,
+    minHeight: 20,
   },
   levelHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 40,
+    marginTop: 40,
   },
   backButton: {
     width: 40,
@@ -490,7 +504,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   inputDisplayCompact: {
-    paddingVertical: 20,
+    paddingTop: 20,
+    paddingBottom: 12,
   },
   inputLabel: {
     fontSize: 18,
@@ -516,15 +531,14 @@ const styles = StyleSheet.create({
   },
   numberPad: {
     alignItems: 'center',
-    paddingBottom: 8,
+    paddingVertical: 8,
   },
   adSpace: {
     height: 60,
     backgroundColor: 'rgba(255, 255, 255, 0.1)',
     borderRadius: 12,
-    marginHorizontal: 24,
     marginTop: 12,
-    marginBottom: 20,
+    marginBottom: 8,
     justifyContent: 'center' as const,
     alignItems: 'center' as const,
   },
