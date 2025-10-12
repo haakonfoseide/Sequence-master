@@ -35,7 +35,7 @@ export default function NumbersGameScreen() {
 
   const resultOpacity = useRef(new Animated.Value(0)).current;
   const shakeAnimation = useRef(new Animated.Value(0)).current;
-  const nextLevelTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const nextLevelTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const gridSize = parseInt(gameConfig.gridSize.split('x')[0], 10);
   const totalCells = gridSize * gridSize;
@@ -345,9 +345,7 @@ export default function NumbersGameScreen() {
               {gamePhase === 'showing' ? 'Husk sekvensen...' : 'Trykk på tallene i riktig rekkefølge'}
             </Text>
 
-            <View style={styles.adSpace}>
-              <Text style={[styles.adSpaceText, { color: colors.text.secondary }]}>Annonse</Text>
-            </View>
+
           </View>
         )}
 
@@ -479,19 +477,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: 20,
   },
-  adSpace: {
-    height: 60,
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    borderRadius: 12,
-    marginHorizontal: 24,
-    marginBottom: 20,
-    justifyContent: 'center' as const,
-    alignItems: 'center' as const,
-  },
-  adSpaceText: {
-    fontSize: 12,
-    opacity: 0.5,
-  },
+
   resultContainer: {
     flex: 1,
     justifyContent: 'center',

@@ -250,9 +250,13 @@ export const [SettingsProvider, useSettings] = createContextHook(() => {
       if (stored) {
         try {
           const settings = JSON.parse(stored);
-          setTheme(settings.theme || 'orange');
-          setMusicEnabled(settings.musicEnabled ?? true);
-          setHapticsEnabled(settings.hapticsEnabled ?? true);
+          if (settings && typeof settings === 'object') {
+            setTheme(settings.theme || 'orange');
+            setMusicEnabled(settings.musicEnabled ?? true);
+            setHapticsEnabled(settings.hapticsEnabled ?? true);
+          } else {
+            throw new Error('Invalid settings format');
+          }
         } catch (parseError) {
           console.error('Failed to parse settings, resetting to defaults:', parseError);
           await AsyncStorage.removeItem(SETTINGS_KEY);
@@ -369,7 +373,7 @@ export const [SettingsProvider, useSettings] = createContextHook(() => {
     }
   }, []);
 
-  const colors = THEMES[theme];
+  const colors = THEMES[theme] || THEMES.orange;
 
   return useMemo(() => ({
     theme,

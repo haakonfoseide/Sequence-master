@@ -90,19 +90,12 @@ export function useBackgroundMusic(theme: MusicTheme, enabled: boolean = true) {
       }
     };
 
-    loadAndPlayMusic();
+    if (enabled) {
+      loadAndPlayMusic();
+    }
 
     return () => {
       isMountedRef.current = false;
-      if (soundRef.current && soundRef.current === globalSound) {
-        console.log(`Unloading music for theme: ${theme}`);
-        soundRef.current.unloadAsync().catch((err) => 
-          console.error('Error unloading sound:', err)
-        );
-        soundRef.current = null;
-        globalSound = null;
-        globalTheme = null;
-      }
     };
   }, [theme, enabled]);
 

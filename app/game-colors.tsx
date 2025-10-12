@@ -344,11 +344,7 @@ export default function ColorsGameScreen() {
               {gamePhase === 'showing' ? 'Husk sekvensen...' : 'Trykk på fargene i riktig rekkefølge'}
             </Text>
 
-            {!adsRemoved && (
-              <View style={styles.adSpace}>
-                <Text style={[styles.adSpaceText, { color: colors.text.secondary }]}>Annonse</Text>
-              </View>
-            )}
+
           </View>
         )}
 
@@ -500,19 +496,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: 20,
   },
-  adSpace: {
-    height: 60,
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    borderRadius: 12,
-    marginHorizontal: 24,
-    marginBottom: 20,
-    justifyContent: 'center' as const,
-    alignItems: 'center' as const,
-  },
-  adSpaceText: {
-    fontSize: 12,
-    opacity: 0.5,
-  },
+
   resultContainer: {
     flex: 1,
     justifyContent: 'center',
