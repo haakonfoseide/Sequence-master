@@ -3,8 +3,10 @@ import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import React, { useEffect } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { View, StyleSheet } from "react-native";
 
 import { SettingsProvider } from "@/contexts/SettingsContext";
+import { AdBanner } from "@/components/AdBanner";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -33,10 +35,19 @@ export default function RootLayout() {
   return (
     <QueryClientProvider client={queryClient}>
       <SettingsProvider>
-        <GestureHandlerRootView>
-          <RootLayoutNav />
+        <GestureHandlerRootView style={styles.container}>
+          <View style={styles.container}>
+            <RootLayoutNav />
+            <AdBanner />
+          </View>
         </GestureHandlerRootView>
       </SettingsProvider>
     </QueryClientProvider>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+});
