@@ -32,7 +32,7 @@ const THEME_OPTIONS: { value: Theme; label: string; emoji: string }[] = [
 export default function SettingsScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
-  const { theme, musicEnabled, hapticsEnabled, adsRemoved, colors, bestScores, updateTheme, toggleMusic, toggleHaptics, resetBestScores, setAdRemovalStatus } = useSettings();
+  const { theme, musicEnabled, hapticsEnabled, adsRemoved, colors, updateTheme, toggleMusic, toggleHaptics, resetBestScores, setAdRemovalStatus } = useSettings();
   const [showResetConfirm, setShowResetConfirm] = useState<boolean>(false);
   const [showThemePicker, setShowThemePicker] = useState<boolean>(false);
 
@@ -168,21 +168,12 @@ export default function SettingsScreen() {
           <View style={styles.section}>
             <Text style={[styles.sectionLabel, { color: colors.text.secondary }]}>HIGHSCORE</Text>
             <View style={[styles.settingCard, { backgroundColor: 'rgba(255, 255, 255, 0.15)' }]}>
-              <View style={styles.highscoreRow}>
-                <Text style={[styles.highscoreLabel, { color: colors.text.primary }]}>Farger: {bestScores.colors}</Text>
-              </View>
-              <View style={styles.highscoreRow}>
-                <Text style={[styles.highscoreLabel, { color: colors.text.primary }]}>Tall: {bestScores.numbers}</Text>
-              </View>
-              <View style={styles.highscoreRow}>
-                <Text style={[styles.highscoreLabel, { color: colors.text.primary }]}>Pi: {bestScores.pi}</Text>
-              </View>
               <TouchableOpacity
                 style={[styles.resetButton, { backgroundColor: 'rgba(255, 255, 255, 0.1)' }]}
                 onPress={() => setShowResetConfirm(true)}
                 activeOpacity={0.7}
               >
-                <Text style={[styles.resetButtonText, { color: '#EF4444' }]}>Nullstill</Text>
+                <Text style={[styles.resetButtonText, { color: '#EF4444' }]}>Nullstill Rekorder</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -335,15 +326,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255, 255, 255, 0.1)',
     marginVertical: 12,
   },
-  highscoreRow: {
-    paddingVertical: 8,
-  },
-  highscoreLabel: {
-    fontSize: 16,
-    fontWeight: '500' as const,
-  },
   resetButton: {
-    marginTop: 16,
     borderRadius: 12,
     paddingVertical: 12,
     alignItems: 'center',

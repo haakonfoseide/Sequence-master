@@ -337,14 +337,18 @@ export const [SettingsProvider, useSettings] = createContextHook(() => {
   }, []);
 
   const updateBestScore = useCallback(async (mode: GameMode | 'piFree', score: number) => {
+    console.log('Updating best score:', mode, score);
     setBestScores(prev => {
       const newScores = { ...prev };
-      if (score > newScores[mode as keyof BestScores]) {
+      const currentScore = newScores[mode as keyof BestScores];
+      console.log('Current score:', currentScore, 'New score:', score);
+      if (score > currentScore) {
         newScores[mode as keyof BestScores] = score;
+        console.log('New high score! Saving:', newScores);
+        AsyncStorage.setItem(BEST_SCORES_KEY, JSON.stringify(newScores)).catch(error => {
+          console.error('Failed to save best scores:', error);
+        });
       }
-      AsyncStorage.setItem(BEST_SCORES_KEY, JSON.stringify(newScores)).catch(error => {
-        console.error('Failed to save best scores:', error);
-      });
       return newScores;
     });
   }, []);
