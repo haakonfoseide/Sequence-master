@@ -1,6 +1,6 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   StyleSheet,
   Text,
@@ -17,11 +17,16 @@ export default function HomeScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const { colors, bestScores, musicEnabled, adsRemoved } = useSettings();
+  const [displayScores, setDisplayScores] = useState(bestScores);
   
   useBackgroundMusic('pi', musicEnabled);
 
+  useEffect(() => {
+    setDisplayScores(bestScores);
+  }, [bestScores]);
+
   const getBestScore = (mode: 'colors' | 'numbers' | 'pi') => {
-    return bestScores[mode] || 0;
+    return displayScores[mode] || 0;
   };
 
   const adBannerSpace = adsRemoved ? 0 : AD_BANNER_HEIGHT;
@@ -72,7 +77,7 @@ export default function HomeScreen() {
               </View>
               <View style={styles.recordRow}>
                 <Text style={[styles.recordLabel, { color: colors.text.primary }]}>Pi (Fritt)</Text>
-                <Text style={[styles.recordValue, { color: colors.text.primary }]}>{bestScores.piFree || 0}</Text>
+                <Text style={[styles.recordValue, { color: colors.text.primary }]}>{displayScores.piFree || 0}</Text>
               </View>
             </View>
           </View>

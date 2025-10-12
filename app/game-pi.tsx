@@ -92,6 +92,12 @@ export default function PiGameScreen() {
     startGame();
   }, [startGame]);
 
+  const nextLevel = useCallback(() => {
+    setCurrentLevel(prev => prev + 1);
+    resultOpacity.setValue(0);
+    startGame();
+  }, [resultOpacity, startGame]);
+
   const checkAnswer = useCallback((input: string) => {
     const actualLength = piMode === 'free' ? input.length : currentLevel;
     const correctSequence = PI_DIGITS.substring(0, actualLength);
@@ -112,6 +118,12 @@ export default function PiGameScreen() {
         updateBestScore('pi', currentLevel);
       } else if (piMode === 'free' && input.length > bestScores.piFree) {
         updateBestScore('piFree', input.length);
+      }
+
+      if (piMode === 'sequence') {
+        setTimeout(() => {
+          nextLevel();
+        }, 1500);
       }
     } else {
       Animated.sequence([
@@ -143,7 +155,7 @@ export default function PiGameScreen() {
         useNativeDriver: true,
       }).start();
     }
-  }, [currentLevel, bestScores.pi, bestScores.piFree, resultOpacity, shakeAnimation, piMode, updateBestScore]);
+  }, [currentLevel, bestScores.pi, bestScores.piFree, resultOpacity, shakeAnimation, piMode, updateBestScore, nextLevel]);
 
   const handleNumberPress = useCallback((num: string) => {
     if (gamePhase !== 'input') return;
@@ -193,12 +205,6 @@ export default function PiGameScreen() {
       return () => window.removeEventListener('keydown', handleKeyPress);
     }
   }, [gamePhase, handleNumberPress, handleBackspace]);
-
-  const nextLevel = useCallback(() => {
-    setCurrentLevel(prev => prev + 1);
-    resultOpacity.setValue(0);
-    startGame();
-  }, [resultOpacity, startGame]);
 
   const restartGame = useCallback(() => {
     setCurrentLevel(1);
@@ -387,15 +393,11 @@ export default function PiGameScreen() {
                   </View>
 
                   {piMode === 'sequence' ? (
-                    <TouchableOpacity
-                      style={[styles.continueButton, { backgroundColor: colors.button.primary }]}
-                      onPress={nextLevel}
-                      activeOpacity={0.8}
-                    >
-                      <Text style={[styles.continueButtonText, { color: colors.button.primaryText }]}>
-                        Neste Nivå ({currentLevel + 1} sifre)
+                    <View style={styles.autoAdvanceContainer}>
+                      <Text style={[styles.autoAdvanceText, { color: colors.text.secondary }]}>
+                        Går videre automatisk...
                       </Text>
-                    </TouchableOpacity>
+                    </View>
                   ) : (
                     <TouchableOpacity
                       style={[styles.restartButton, { backgroundColor: colors.button.primary }]}
@@ -669,6 +671,15 @@ const styles = StyleSheet.create({
   restartButtonText: {
     fontSize: 18,
     fontWeight: '700' as const,
+  },
+  autoAdvanceContainer: {
+    paddingVertical: 18,
+    paddingHorizontal: 32,
+    alignItems: 'center',
+  },
+  autoAdvanceText: {
+    fontSize: 16,
+    fontWeight: '600' as const,
   },
   sequenceTopDisplay: {
     backgroundColor: 'rgba(255, 255, 255, 0.15)',
