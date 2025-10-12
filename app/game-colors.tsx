@@ -25,7 +25,7 @@ type GamePhase = 'showing' | 'input' | 'result';
 export default function ColorsGameScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
-  const { colors, gameConfig, updateBestScore, bestScores, hapticsEnabled, musicEnabled, adsRemoved } = useSettings();
+  const { colors, gameConfig, updateBestScore, bestScores, hapticsEnabled, musicEnabled } = useSettings();
   
   useBackgroundMusic('colors', musicEnabled);
   const [gamePhase, setGamePhase] = useState<GamePhase>('showing');
@@ -102,6 +102,7 @@ export default function ColorsGameScreen() {
     if (sequence.length === 0) {
       startGame();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -110,71 +111,23 @@ export default function ColorsGameScreen() {
     }
   }, [gamePhase, sequence, showSequence]);
 
-  const checkAnswer = useCallback(() => {
-    const correct = userSequence.length === sequence.length && 
-                    userSequence.every((val, idx) => val === sequence[idx]);
-    
-    console.log('Checking answer:', { userSequence, sequence, correct });
-    setIsCorrect(correct);
-
-    if (correct) {
-      const currentBest = bestScores.colors;
-      if (currentLevel > currentBest) {
-        updateBestScore('colors', currentLevel);
-      }
-
-      setGamePhase('result');
-      Animated.timing(resultOpacity, {
-        toValue: 1,
-        duration: 300,
-        useNativeDriver: true,
-      }).start();
-
-      setTimeout(() => {
-        resultOpacity.setValue(0);
-        setCurrentLevel(prev => prev + 1);
-        const newElement = Math.floor(Math.random() * totalCells);
-        const newSequence = [...sequence, newElement];
-        setSequence(newSequence);
-        setUserSequence([]);
-        setIsCorrect(null);
-        setShowingIndex(0);
-        setHighlightedCell(null);
-        setGamePhase('showing');
-      }, 1500);
-    } else {
-      setGamePhase('result');
-      
-      Animated.sequence([
-        Animated.timing(shakeAnimation, {
-          toValue: 10,
-          duration: 50,
-          useNativeDriver: true,
-        }),
-        Animated.timing(shakeAnimation, {
-          toValue: -10,
-          duration: 50,
-          useNativeDriver: true,
-        }),
-        Animated.timing(shakeAnimation, {
-          toValue: 10,
-          duration: 50,
-          useNativeDriver: true,
-        }),
-        Animated.timing(shakeAnimation, {
-          toValue: 0,
-          duration: 50,
-          useNativeDriver: true,
-        }),
-      ]).start();
-
-      Animated.timing(resultOpacity, {
-        toValue: 1,
-        duration: 300,
-        useNativeDriver: true,
-      }).start();
+  const nextLevel = useCallback(() => {
+    if (nextLevelTimeoutRef.current) {
+      clearTimeout(nextLevelTimeoutRef.current);
+      nextLevelTimeoutRef.current = null;
     }
-  }, [userSequence, sequence, currentLevel, bestScores.colors, gameConfig.gridSize, resultOpacity, shakeAnimation, updateBestScore, generateSequence]);
+    
+    resultOpacity.setValue(0);
+    setCurrentLevel(prev => prev + 1);
+    const newElement = Math.floor(Math.random() * totalCells);
+    const newSequence = [...sequence, newElement];
+    setSequence(newSequence);
+    setUserSequence([]);
+    setIsCorrect(null);
+    setShowingIndex(0);
+    setHighlightedCell(null);
+    setGamePhase('showing');
+  }, [resultOpacity, sequence, totalCells]);
 
   const handleCellPress = useCallback((index: number) => {
     if (gamePhase !== 'input') return;
@@ -245,25 +198,7 @@ export default function ColorsGameScreen() {
         nextLevel();
       }, 1500);
     }
-  }, [gamePhase, userSequence, sequence, shakeAnimation, resultOpacity, bestScores.colors, gameConfig.gridSize, currentLevel, updateBestScore, totalCells, hapticsEnabled]);
-
-  const nextLevel = useCallback(() => {
-    if (nextLevelTimeoutRef.current) {
-      clearTimeout(nextLevelTimeoutRef.current);
-      nextLevelTimeoutRef.current = null;
-    }
-    
-    resultOpacity.setValue(0);
-    setCurrentLevel(prev => prev + 1);
-    const newElement = Math.floor(Math.random() * totalCells);
-    const newSequence = [...sequence, newElement];
-    setSequence(newSequence);
-    setUserSequence([]);
-    setIsCorrect(null);
-    setShowingIndex(0);
-    setHighlightedCell(null);
-    setGamePhase('showing');
-  }, [resultOpacity, sequence, totalCells]);
+  }, [gamePhase, userSequence, sequence, shakeAnimation, resultOpacity, bestScores.colors, currentLevel, updateBestScore, hapticsEnabled, nextLevel]);
 
   const restartGame = useCallback(() => {
     resultOpacity.setValue(0);
