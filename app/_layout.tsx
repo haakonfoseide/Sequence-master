@@ -72,8 +72,8 @@ export default function RootLayout() {
 
   return (
     <ErrorBoundary>
-      <trpc.Provider client={trpcClient} queryClient={queryClient}>
-        <QueryClientProvider client={queryClient}>
+      <QueryClientProvider client={queryClient}>
+        <trpc.Provider client={trpcClient} queryClient={queryClient}>
           <SettingsProvider>
             <GestureHandlerRootView style={styles.container}>
               <View style={styles.container}>
@@ -82,8 +82,8 @@ export default function RootLayout() {
               </View>
             </GestureHandlerRootView>
           </SettingsProvider>
-        </QueryClientProvider>
-      </trpc.Provider>
+        </trpc.Provider>
+      </QueryClientProvider>
     </ErrorBoundary>
   );
 }
