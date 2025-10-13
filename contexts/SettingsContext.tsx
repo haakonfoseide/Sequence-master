@@ -266,10 +266,15 @@ export const [SettingsProvider, useSettings] = createContextHook(() => {
         console.error('AsyncStorage getItem error:', err);
         return null;
       });
-      if (stored) {
+      if (stored && typeof stored === 'string' && stored.trim().length > 0) {
         try {
+          if (!stored.startsWith('{') && !stored.startsWith('[')) {
+            console.error('Invalid JSON format, clearing storage');
+            await AsyncStorage.removeItem(SETTINGS_KEY).catch(() => {});
+            return;
+          }
           const settings = JSON.parse(stored);
-          if (settings && typeof settings === 'object') {
+          if (settings && typeof settings === 'object' && !Array.isArray(settings)) {
             setTheme(settings.theme || 'orange');
             setMusicEnabled(settings.musicEnabled ?? true);
             setHapticsEnabled(settings.hapticsEnabled ?? true);
@@ -304,10 +309,15 @@ export const [SettingsProvider, useSettings] = createContextHook(() => {
         console.error('AsyncStorage getItem error:', err);
         return null;
       });
-      if (stored) {
+      if (stored && typeof stored === 'string' && stored.trim().length > 0) {
         try {
+          if (!stored.startsWith('{') && !stored.startsWith('[')) {
+            console.error('Invalid JSON format for scores, clearing storage');
+            await AsyncStorage.removeItem(BEST_SCORES_KEY).catch(() => {});
+            return;
+          }
           const scores = JSON.parse(stored);
-          if (scores && typeof scores === 'object' && 
+          if (scores && typeof scores === 'object' && !Array.isArray(scores) &&
               typeof scores.colors === 'number' && 
               typeof scores.numbers === 'number' && 
               typeof scores.pi === 'number') {
@@ -420,7 +430,7 @@ export const [SettingsProvider, useSettings] = createContextHook(() => {
         console.error('AsyncStorage getItem error:', err);
         return null;
       });
-      if (stored) {
+      if (stored && typeof stored === 'string') {
         setAdsRemoved(stored === 'true');
       }
     } catch (error) {
