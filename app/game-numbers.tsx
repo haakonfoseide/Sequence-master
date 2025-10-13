@@ -1,6 +1,6 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
-import { Trophy, RotateCcw, ArrowLeft } from 'lucide-react-native';
+import { Trophy, RotateCcw, ArrowLeft, Share2 } from 'lucide-react-native';
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
   StyleSheet,
@@ -16,6 +16,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useSettings } from '@/contexts/SettingsContext';
 import { useBackgroundMusic } from '@/hooks/useBackgroundMusic';
+import { shareChallenge } from '@/services/sharingService';
+import { submitScore } from '@/services/gameCenterService';
 import { AD_BANNER_HEIGHT } from '@/components/AdBanner';
 
 type GamePhase = 'showing' | 'input' | 'result';
@@ -330,14 +332,31 @@ export default function NumbersGameScreen() {
                     </View>
                   )}
 
-                  <TouchableOpacity
-                    style={[styles.restartButton, { backgroundColor: colors.button.primary }]}
-                    onPress={restartGame}
-                    activeOpacity={0.8}
-                  >
-                    <RotateCcw color={colors.button.primaryText} size={20} />
-                    <Text style={[styles.restartButtonText, { color: colors.button.primaryText }]}>Prøv Igjen</Text>
-                  </TouchableOpacity>
+                  <View style={styles.buttonRow}>
+                    <TouchableOpacity
+                      style={[styles.restartButton, { backgroundColor: colors.button.primary }]}
+                      onPress={restartGame}
+                      activeOpacity={0.8}
+                    >
+                      <RotateCcw color={colors.button.primaryText} size={20} />
+                      <Text style={[styles.restartButtonText, { color: colors.button.primaryText }]}>Prøv Igjen</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={[styles.shareButton, { backgroundColor: 'rgba(255, 255, 255, 0.2)' }]}
+                      onPress={() => {
+                        shareChallenge({
+                          mode: 'numbers',
+                          score: currentLevel,
+                          difficulty: gameConfig.difficulty,
+                          gridSize: gameConfig.gridSize,
+                        });
+                        submitScore('numbers', currentLevel);
+                      }}
+                      activeOpacity={0.8}
+                    >
+                      <Share2 color={colors.text.primary} size={20} />
+                    </TouchableOpacity>
+                  </View>
                 </>
               )}
             </View>
@@ -461,15 +480,30 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   restartButton: {
+    flex: 1,
     borderRadius: 16,
     paddingVertical: 18,
     paddingHorizontal: 32,
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
     gap: 12,
   },
   restartButtonText: {
     fontSize: 18,
     fontWeight: '700' as const,
+  },
+  buttonRow: {
+    flexDirection: 'row',
+    gap: 12,
+    width: '100%',
+    paddingHorizontal: 24,
+  },
+  shareButton: {
+    borderRadius: 16,
+    paddingVertical: 18,
+    paddingHorizontal: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
