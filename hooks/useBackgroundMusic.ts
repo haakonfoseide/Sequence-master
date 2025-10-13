@@ -12,6 +12,25 @@ const MUSIC_URLS: Record<MusicTheme, string> = {
 
 let globalSound: Audio.Sound | null = null;
 let globalTheme: MusicTheme | null = null;
+let audioModeInitialized = false;
+
+async function initializeAudioMode() {
+  if (audioModeInitialized || Platform.OS === 'web') {
+    return;
+  }
+
+  try {
+    await Audio.setAudioModeAsync({
+      playsInSilentModeIOS: true,
+      staysActiveInBackground: false,
+      shouldDuckAndroid: true,
+    });
+    audioModeInitialized = true;
+    console.log('Audio mode initialized successfully');
+  } catch (error) {
+    console.log('Could not initialize audio mode:', error);
+  }
+}
 
 export function useBackgroundMusic(theme: MusicTheme, enabled: boolean = true) {
   const soundRef = useRef<Audio.Sound | null>(null);
@@ -67,15 +86,7 @@ export function useBackgroundMusic(theme: MusicTheme, enabled: boolean = true) {
         isLoadingRef.current = true;
         console.log(`Loading music for theme: ${theme}`);
 
-        try {
-          await Audio.setAudioModeAsync({
-            playsInSilentModeIOS: true,
-            staysActiveInBackground: false,
-            shouldDuckAndroid: true,
-          });
-        } catch (audioModeError) {
-          console.log('Could not set audio mode, continuing anyway:', audioModeError);
-        }
+        await initializeAudioMode();
 
         const { sound, status } = await Audio.Sound.createAsync(
           { uri: MUSIC_URLS[theme] },
