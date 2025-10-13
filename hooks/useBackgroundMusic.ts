@@ -41,7 +41,7 @@ export function useBackgroundMusic(theme: MusicTheme, enabled: boolean = true) {
               await globalSound.playAsync();
             }
           } catch (err) {
-            console.error('Error resuming sound:', err);
+            console.log('Error resuming sound, will continue without music:', err);
           }
         }
         return;
@@ -52,7 +52,7 @@ export function useBackgroundMusic(theme: MusicTheme, enabled: boolean = true) {
         try {
           await globalSound.unloadAsync();
         } catch (err) {
-          console.error('Error unloading previous sound:', err);
+          console.log('Error unloading previous sound:', err);
         }
         globalSound = null;
         globalTheme = null;
@@ -101,7 +101,11 @@ export function useBackgroundMusic(theme: MusicTheme, enabled: boolean = true) {
           globalTheme = theme;
           console.log(`Music playing for theme: ${theme}`);
         } else {
-          await sound.unloadAsync();
+          try {
+            await sound.unloadAsync();
+          } catch (unloadErr) {
+            console.log('Error unloading sound on unmount:', unloadErr);
+          }
         }
       } catch (error: any) {
         console.log('Background music could not be loaded. Continuing without music.');
@@ -120,15 +124,19 @@ export function useBackgroundMusic(theme: MusicTheme, enabled: boolean = true) {
             await globalSound.pauseAsync();
           }
         } catch (err) {
-          console.error('Error pausing sound:', err);
+          console.log('Error pausing sound, will continue:', err);
         }
       }
     };
 
     if (enabled) {
-      loadAndPlayMusic();
+      loadAndPlayMusic().catch(err => {
+        console.log('Error in loadAndPlayMusic:', err);
+      });
     } else {
-      stopMusic();
+      stopMusic().catch(err => {
+        console.log('Error in stopMusic:', err);
+      });
     }
 
     return () => {

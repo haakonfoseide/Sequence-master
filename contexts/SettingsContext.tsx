@@ -362,26 +362,30 @@ export const [SettingsProvider, useSettings] = createContextHook(() => {
   }, []);
 
   const updateBestScore = useCallback(async (mode: GameMode | 'piFree', score: number) => {
-    console.log('Updating best score:', mode, score);
-    const newScores = await new Promise<BestScores>((resolve) => {
-      setBestScores(prev => {
-        const updated = { ...prev };
-        const currentScore = updated[mode as keyof BestScores];
-        console.log('Current score:', currentScore, 'New score:', score);
-        if (score > currentScore) {
-          updated[mode as keyof BestScores] = score;
-          console.log('New high score! Saving:', updated);
-        }
-        resolve(updated);
-        return updated;
-      });
-    });
-    
     try {
-      await AsyncStorage.setItem(BEST_SCORES_KEY, JSON.stringify(newScores));
-      console.log('Best scores saved successfully');
+      console.log('Updating best score:', mode, score);
+      const newScores = await new Promise<BestScores>((resolve) => {
+        setBestScores(prev => {
+          const updated = { ...prev };
+          const currentScore = updated[mode as keyof BestScores];
+          console.log('Current score:', currentScore, 'New score:', score);
+          if (score > currentScore) {
+            updated[mode as keyof BestScores] = score;
+            console.log('New high score! Saving:', updated);
+          }
+          resolve(updated);
+          return updated;
+        });
+      });
+      
+      try {
+        await AsyncStorage.setItem(BEST_SCORES_KEY, JSON.stringify(newScores));
+        console.log('Best scores saved successfully');
+      } catch (error) {
+        console.log('Failed to save best scores to storage:', error);
+      }
     } catch (error) {
-      console.error('Failed to save best scores:', error);
+      console.log('Failed to update best score:', error);
     }
   }, []);
 

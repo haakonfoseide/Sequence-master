@@ -1,5 +1,4 @@
-import * as Sharing from 'expo-sharing';
-import { Platform, Alert } from 'react-native';
+import { Platform, Alert, Share } from 'react-native';
 
 export interface ChallengeData {
   mode: 'colors' | 'numbers' | 'pi';
@@ -43,18 +42,14 @@ export async function shareChallenge(data: ChallengeData): Promise<void> {
       }
     } else {
       try {
-        const isAvailable = await Sharing.isAvailableAsync();
-        if (isAvailable) {
-          const tempMessage = `data:text/plain;base64,${btoa(message)}`;
-          await Sharing.shareAsync(tempMessage, {
-            dialogTitle: 'Utfordre venner',
-          });
-        } else {
-          Alert.alert('Deling ikke tilgjengelig', 'Kan ikke dele på denne enheten');
+        await Share.share({
+          message: message,
+        });
+      } catch (nativeError: any) {
+        if (nativeError.code !== 'CANCELLED') {
+          console.error('Native sharing error:', nativeError);
+          Alert.alert('Feil', 'Kunne ikke dele utfordringen');
         }
-      } catch (nativeError) {
-        console.error('Native sharing error:', nativeError);
-        Alert.alert('Feil', 'Kunne ikke dele utfordringen');
       }
     }
   } catch (error) {
@@ -97,18 +92,14 @@ export async function shareScore(data: ChallengeData): Promise<void> {
       }
     } else {
       try {
-        const isAvailable = await Sharing.isAvailableAsync();
-        if (isAvailable) {
-          const tempMessage = `data:text/plain;base64,${btoa(message)}`;
-          await Sharing.shareAsync(tempMessage, {
-            dialogTitle: 'Del score',
-          });
-        } else {
-          Alert.alert('Deling ikke tilgjengelig', 'Kan ikke dele på denne enheten');
+        await Share.share({
+          message: message,
+        });
+      } catch (nativeError: any) {
+        if (nativeError.code !== 'CANCELLED') {
+          console.error('Native sharing error:', nativeError);
+          Alert.alert('Feil', 'Kunne ikke dele scoren');
         }
-      } catch (nativeError) {
-        console.error('Native sharing error:', nativeError);
-        Alert.alert('Feil', 'Kunne ikke dele scoren');
       }
     }
   } catch (error) {
