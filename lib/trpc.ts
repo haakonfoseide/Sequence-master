@@ -7,9 +7,13 @@ import { Platform } from "react-native";
 export const trpc = createTRPCReact<AppRouter>();
 
 const getBaseUrl = () => {
-  const envUrl = process.env.EXPO_PUBLIC_RORK_API_BASE_URL;
-  if (envUrl && typeof envUrl === "string" && envUrl.length > 0) {
-    return envUrl;
+  try {
+    const envUrl = process.env.EXPO_PUBLIC_RORK_API_BASE_URL;
+    if (envUrl && typeof envUrl === "string" && envUrl.length > 0) {
+      return envUrl;
+    }
+  } catch (e) {
+    console.log("Env read failed:", e);
   }
 
   if (Platform.OS === "web" && typeof window !== "undefined") {

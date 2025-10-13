@@ -21,6 +21,8 @@ import { AD_BANNER_HEIGHT } from '@/components/AdBanner';
 
 type GamePhase = 'showing' | 'input' | 'result';
 
+type TimeoutRef = ReturnType<typeof setTimeout> | null;
+
 export default function PiGameScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
@@ -41,7 +43,15 @@ export default function PiGameScreen() {
 
   const piMode = gameConfig.piMode || 'sequence';
 
+  const timeoutsRef = useRef<TimeoutRef[]>([]);
+
+  const clearAllTimeouts = useCallback(() => {
+    timeoutsRef.current.forEach((t) => t && clearTimeout(t));
+    timeoutsRef.current = [];
+  }, []);
+
   const showSequence = useCallback(() => {
+    clearAllTimeouts();
     let index = 0;
     const sequence = PI_DIGITS.substring(0, currentLevel);
     
@@ -64,16 +74,18 @@ export default function PiGameScreen() {
         ]).start();
 
         index++;
-        setTimeout(showNextDigit, 800);
+        const t = setTimeout(showNextDigit, 800);
+        timeoutsRef.current.push(t);
       } else {
-        setTimeout(() => {
+        const t = setTimeout(() => {
           setGamePhase('input');
         }, 800);
+        timeoutsRef.current.push(t);
       }
     };
 
     showNextDigit();
-  }, [currentLevel, digitScale]);
+  }, [currentLevel, digitScale, clearAllTimeouts]);
 
   const startGame = useCallback(() => {
     console.log('Starting game at level:', currentLevel, 'mode:', piMode);
@@ -96,7 +108,10 @@ export default function PiGameScreen() {
     } catch (error) {
       console.error('Error starting game:', error);
     }
-  }, [startGame]);
+    return () => {
+      clearAllTimeouts();
+    };
+  }, [startGame, clearAllTimeouts]);
 
   const nextLevel = useCallback(() => {
     setCurrentLevel(prev => prev + 1);
@@ -235,14 +250,16 @@ export default function PiGameScreen() {
   }, [gamePhase, handleNumberPress, handleBackspace]);
 
   const restartGame = useCallback(() => {
+    clearAllTimeouts();
     setCurrentLevel(1);
     resultOpacity.setValue(0);
     startGame();
-  }, [resultOpacity, startGame]);
+  }, [resultOpacity, startGame, clearAllTimeouts]);
 
   const backToMenu = useCallback(() => {
+    clearAllTimeouts();
     router.back();
-  }, [router]);
+  }, [router, clearAllTimeouts]);
 
   const renderNumberPad = useCallback(() => {
     const rows = [
@@ -296,6 +313,7 @@ export default function PiGameScreen() {
           <View style={styles.gameScreen}>
             <View style={styles.levelHeader}>
               <TouchableOpacity
+                testID="pi-back-button"
                 style={styles.backButton}
                 onPress={backToMenu}
                 activeOpacity={0.7}
@@ -314,7 +332,7 @@ export default function PiGameScreen() {
               </Text>
             </View>
 
-            <View style={styles.digitDisplay}>
+            <View testID="pi-digit-display" style={styles.digitDisplay}>
               <Animated.View
                 style={{
                   transform: [{ scale: digitScale }],
@@ -334,12 +352,14 @@ export default function PiGameScreen() {
 
         {gamePhase === 'input' && (
           <KeyboardAvoidingView 
+            testID="pi-input-screen"
             style={styles.gameScreen}
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
             keyboardVerticalOffset={0}
           >
             <View style={styles.levelHeader}>
               <TouchableOpacity
+                testID="pi-back-button"
                 style={styles.backButton}
                 onPress={backToMenu}
                 activeOpacity={0.7}
@@ -383,7 +403,7 @@ export default function PiGameScreen() {
 
             <View style={styles.flexSpacer} />
 
-            <View style={styles.numberPadContainer}>
+            <View testID="pi-number-pad" style={styles.numberPadContainer}>
               {renderNumberPad()}
             </View>
           </KeyboardAvoidingView>
@@ -391,6 +411,7 @@ export default function PiGameScreen() {
 
         {gamePhase === 'result' && (
           <Animated.View
+            testID="pi-result-screen"
             style={[
               styles.gameScreen,
               {
@@ -420,14 +441,23 @@ export default function PiGameScreen() {
                     </Text>
                   </View>
 
+                  {isNewRecord && (
+                    <View style={styles.newRecordBadge}>
+                      <Trophy color={colors.digit.correct} size={20} />
+                      <Text style={[styles.newRecordText, { color: colors.digit.correct }]}>Ny Rekord!</Text>
+                    </View>
+                  )}
+
                   {piMode === 'sequence' ? (
                     <View style={styles.autoAdvanceContainer}>
                       <Text style={[styles.autoAdvanceText, { color: colors.text.secondary }]}>
+
                         Går videre automatisk...
                       </Text>
                     </View>
                   ) : (
                     <TouchableOpacity
+                      testID="pi-restart-button"
                       style={[styles.restartButton, { backgroundColor: colors.button.primary }]}
                       onPress={restartGame}
                       activeOpacity={0.8}
