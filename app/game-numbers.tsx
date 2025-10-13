@@ -137,7 +137,13 @@ export default function NumbersGameScreen() {
     if (gamePhase !== 'input') return;
     
     if (hapticsEnabled && Platform.OS !== 'web') {
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      try {
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch((err: any) => {
+          console.log('Haptics error:', err);
+        });
+      } catch (err) {
+        console.log('Haptics sync error:', err);
+      }
     }
     
     const newUserSequence = [...userSequence, index];

@@ -262,7 +262,10 @@ export const [SettingsProvider, useSettings] = createContextHook(() => {
 
   const loadSettings = async () => {
     try {
-      const stored = await AsyncStorage.getItem(SETTINGS_KEY);
+      const stored = await AsyncStorage.getItem(SETTINGS_KEY).catch((err: any) => {
+        console.error('AsyncStorage getItem error:', err);
+        return null;
+      });
       if (stored) {
         try {
           const settings = JSON.parse(stored);
@@ -276,7 +279,9 @@ export const [SettingsProvider, useSettings] = createContextHook(() => {
         } catch (parseError) {
           console.error('Failed to parse settings, resetting to defaults:', parseError);
           try {
-            await AsyncStorage.removeItem(SETTINGS_KEY);
+            await AsyncStorage.removeItem(SETTINGS_KEY).catch((err: any) => {
+              console.error('AsyncStorage removeItem error:', err);
+            });
           } catch (removeError) {
             console.error('Failed to remove invalid settings:', removeError);
           }
@@ -295,7 +300,10 @@ export const [SettingsProvider, useSettings] = createContextHook(() => {
 
   const loadBestScores = async () => {
     try {
-      const stored = await AsyncStorage.getItem(BEST_SCORES_KEY);
+      const stored = await AsyncStorage.getItem(BEST_SCORES_KEY).catch((err: any) => {
+        console.error('AsyncStorage getItem error:', err);
+        return null;
+      });
       if (stored) {
         try {
           const scores = JSON.parse(stored);
@@ -310,7 +318,9 @@ export const [SettingsProvider, useSettings] = createContextHook(() => {
           } else {
             console.log('Invalid best scores structure, resetting to defaults');
             try {
-              await AsyncStorage.removeItem(BEST_SCORES_KEY);
+              await AsyncStorage.removeItem(BEST_SCORES_KEY).catch((err: any) => {
+                console.error('AsyncStorage removeItem error:', err);
+              });
             } catch (removeError) {
               console.error('Failed to remove invalid scores:', removeError);
             }
@@ -319,7 +329,9 @@ export const [SettingsProvider, useSettings] = createContextHook(() => {
         } catch (parseError) {
           console.error('Failed to parse best scores, resetting to defaults:', parseError);
           try {
-            await AsyncStorage.removeItem(BEST_SCORES_KEY);
+            await AsyncStorage.removeItem(BEST_SCORES_KEY).catch((err: any) => {
+              console.error('AsyncStorage removeItem error:', err);
+            });
           } catch (removeError) {
             console.error('Failed to remove invalid scores:', removeError);
           }
@@ -337,7 +349,9 @@ export const [SettingsProvider, useSettings] = createContextHook(() => {
       await AsyncStorage.setItem(
         SETTINGS_KEY,
         JSON.stringify({ theme: newTheme, musicEnabled: newMusicEnabled, hapticsEnabled: newHapticsEnabled })
-      );
+      ).catch((err: any) => {
+        console.error('AsyncStorage setItem error:', err);
+      });
     } catch (error) {
       console.error('Failed to save settings:', error);
     }
@@ -380,7 +394,7 @@ export const [SettingsProvider, useSettings] = createContextHook(() => {
           
           AsyncStorage.setItem(BEST_SCORES_KEY, JSON.stringify(updated))
             .then(() => console.log('Best scores saved successfully'))
-            .catch(error => console.log('Failed to save best scores to storage:', error));
+            .catch((error: any) => console.log('Failed to save best scores to storage:', error));
         }
         return updated;
       });
@@ -392,7 +406,9 @@ export const [SettingsProvider, useSettings] = createContextHook(() => {
   const resetBestScores = useCallback(async () => {
     setBestScores(DEFAULT_BEST_SCORES);
     try {
-      await AsyncStorage.setItem(BEST_SCORES_KEY, JSON.stringify(DEFAULT_BEST_SCORES));
+      await AsyncStorage.setItem(BEST_SCORES_KEY, JSON.stringify(DEFAULT_BEST_SCORES)).catch((err: any) => {
+        console.error('AsyncStorage setItem error:', err);
+      });
     } catch (error) {
       console.error('Failed to reset best scores:', error);
     }
@@ -400,7 +416,10 @@ export const [SettingsProvider, useSettings] = createContextHook(() => {
 
   const loadAdRemovalStatus = async () => {
     try {
-      const stored = await AsyncStorage.getItem(AD_REMOVAL_KEY);
+      const stored = await AsyncStorage.getItem(AD_REMOVAL_KEY).catch((err: any) => {
+        console.error('AsyncStorage getItem error:', err);
+        return null;
+      });
       if (stored) {
         setAdsRemoved(stored === 'true');
       }
@@ -412,7 +431,9 @@ export const [SettingsProvider, useSettings] = createContextHook(() => {
   const setAdRemovalStatus = useCallback(async (removed: boolean) => {
     setAdsRemoved(removed);
     try {
-      await AsyncStorage.setItem(AD_REMOVAL_KEY, removed ? 'true' : 'false');
+      await AsyncStorage.setItem(AD_REMOVAL_KEY, removed ? 'true' : 'false').catch((err: any) => {
+        console.error('AsyncStorage setItem error:', err);
+      });
     } catch (error) {
       console.error('Failed to save ad removal status:', error);
     }

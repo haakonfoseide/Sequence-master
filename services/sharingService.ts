@@ -23,33 +23,43 @@ export async function shareChallenge(data: ChallengeData): Promise<void> {
           await navigator.share({
             title: 'Sequence Master Utfordring',
             text: message,
+          }).catch((shareError: any) => {
+            if (shareError.name === 'NotAllowedError') {
+              console.log('Share not allowed, falling back to clipboard');
+              return navigator.clipboard.writeText(message).then(() => {
+                Alert.alert('Kopiert!', 'Utfordringen er kopiert til utklippstavlen');
+              });
+            } else if (shareError.name === 'AbortError') {
+              console.log('Share cancelled by user');
+            } else {
+              throw shareError;
+            }
           });
           console.log('Share successful');
         } catch (shareError: any) {
-          if (shareError.name === 'NotAllowedError') {
-            console.log('Share not allowed, falling back to clipboard');
-            await navigator.clipboard.writeText(message);
-            Alert.alert('Kopiert!', 'Utfordringen er kopiert til utklippstavlen');
-          } else if (shareError.name === 'AbortError') {
-            console.log('Share cancelled by user');
-          } else {
-            throw shareError;
-          }
+          console.log('Share error caught:', shareError);
         }
       } else {
-        await navigator.clipboard.writeText(message);
+        await navigator.clipboard.writeText(message).catch((err: any) => {
+          console.log('Clipboard error:', err);
+        });
         Alert.alert('Kopiert!', 'Utfordringen er kopiert til utklippstavlen');
       }
     } else {
       try {
-        await Share.share({
+        const result = await Share.share({
           message: message,
+        }).catch((nativeError: any) => {
+          if (nativeError.code !== 'CANCELLED') {
+            console.error('Native sharing error:', nativeError);
+          }
+          return { action: 'error' };
         });
-      } catch (nativeError: any) {
-        if (nativeError.code !== 'CANCELLED') {
-          console.error('Native sharing error:', nativeError);
-          Alert.alert('Feil', 'Kunne ikke dele utfordringen');
+        if (result && result.action === 'error') {
+          console.log('Share failed');
         }
+      } catch (nativeError: any) {
+        console.error('Native sharing outer error:', nativeError);
       }
     }
   } catch (error) {
@@ -73,33 +83,43 @@ export async function shareScore(data: ChallengeData): Promise<void> {
           await navigator.share({
             title: 'Sequence Master Score',
             text: message,
+          }).catch((shareError: any) => {
+            if (shareError.name === 'NotAllowedError') {
+              console.log('Share not allowed, falling back to clipboard');
+              return navigator.clipboard.writeText(message).then(() => {
+                Alert.alert('Kopiert!', 'Scoren er kopiert til utklippstavlen');
+              });
+            } else if (shareError.name === 'AbortError') {
+              console.log('Share cancelled by user');
+            } else {
+              throw shareError;
+            }
           });
           console.log('Share successful');
         } catch (shareError: any) {
-          if (shareError.name === 'NotAllowedError') {
-            console.log('Share not allowed, falling back to clipboard');
-            await navigator.clipboard.writeText(message);
-            Alert.alert('Kopiert!', 'Scoren er kopiert til utklippstavlen');
-          } else if (shareError.name === 'AbortError') {
-            console.log('Share cancelled by user');
-          } else {
-            throw shareError;
-          }
+          console.log('Share error caught:', shareError);
         }
       } else {
-        await navigator.clipboard.writeText(message);
+        await navigator.clipboard.writeText(message).catch((err: any) => {
+          console.log('Clipboard error:', err);
+        });
         Alert.alert('Kopiert!', 'Scoren er kopiert til utklippstavlen');
       }
     } else {
       try {
-        await Share.share({
+        const result = await Share.share({
           message: message,
+        }).catch((nativeError: any) => {
+          if (nativeError.code !== 'CANCELLED') {
+            console.error('Native sharing error:', nativeError);
+          }
+          return { action: 'error' };
         });
-      } catch (nativeError: any) {
-        if (nativeError.code !== 'CANCELLED') {
-          console.error('Native sharing error:', nativeError);
-          Alert.alert('Feil', 'Kunne ikke dele scoren');
+        if (result && result.action === 'error') {
+          console.log('Share failed');
         }
+      } catch (nativeError: any) {
+        console.error('Native sharing outer error:', nativeError);
       }
     }
   } catch (error) {

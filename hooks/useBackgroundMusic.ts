@@ -24,6 +24,9 @@ async function initializeAudioMode() {
       playsInSilentModeIOS: true,
       staysActiveInBackground: false,
       shouldDuckAndroid: true,
+    }).catch((err: any) => {
+      console.log('Audio mode async error:', err?.message || err);
+      throw err;
     });
     audioModeInitialized = true;
     console.log('Audio mode initialized successfully');
@@ -55,10 +58,15 @@ export function useBackgroundMusic(theme: MusicTheme, enabled: boolean = true) {
         
         if (enabled) {
           try {
-            const status = await globalSound.getStatusAsync();
+            const status = await globalSound.getStatusAsync().catch((err: any) => {
+              console.log('Error getting status:', err);
+              return { isLoaded: false, isPlaying: false };
+            });
             if (status.isLoaded && !status.isPlaying) {
               console.log(`Resuming music for theme: ${theme}`);
-              await globalSound.playAsync();
+              await globalSound.playAsync().catch((err: any) => {
+                console.log('Error playing sound:', err);
+              });
             }
           } catch (err) {
             console.log('Error resuming sound, will continue without music:', err);
@@ -70,7 +78,9 @@ export function useBackgroundMusic(theme: MusicTheme, enabled: boolean = true) {
       if (globalSound && globalTheme !== theme) {
         console.log(`Stopping previous music (${globalTheme}) to play new theme: ${theme}`);
         try {
-          await globalSound.unloadAsync();
+          await globalSound.unloadAsync().catch((err: any) => {
+            console.log('Unload async error:', err);
+          });
         } catch (err) {
           console.log('Error unloading previous sound:', err);
         }
