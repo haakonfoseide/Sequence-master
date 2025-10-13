@@ -241,9 +241,19 @@ export const [SettingsProvider, useSettings] = createContextHook(() => {
   const [bestScores, setBestScores] = useState<BestScores>(DEFAULT_BEST_SCORES);
 
   useEffect(() => {
-    loadSettings();
-    loadBestScores();
-    loadAdRemovalStatus();
+    const initializeSettings = async () => {
+      try {
+        await Promise.all([
+          loadSettings(),
+          loadBestScores(),
+          loadAdRemovalStatus()
+        ]);
+      } catch (error) {
+        console.error('Failed to initialize settings:', error);
+        setIsLoading(false);
+      }
+    };
+    initializeSettings();
   }, []);
 
   const loadSettings = async () => {
