@@ -1,16 +1,18 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
-import React, { useEffect } from "react";
+import React, { useEffect, Component, ReactNode } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import { View, StyleSheet } from "react-native";
+import { View, StyleSheet, Text } from "react-native";
 
 import { SettingsProvider } from "@/contexts/SettingsContext";
 import { AdBanner } from "@/components/AdBanner";
 import { trpc, trpcClient } from "@/lib/trpc";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
-SplashScreen.preventAutoHideAsync();
+SplashScreen.preventAutoHideAsync().catch((error) => {
+  console.error('Failed to prevent splash screen auto-hide:', error);
+});
 
 const queryClient = new QueryClient();
 
@@ -28,29 +30,83 @@ function RootLayoutNav() {
   );
 }
 
+class ErrorBoundary extends Component<
+  { children: ReactNode },
+  { hasError: boolean; error: Error | null }
+> {
+  constructor(props: { children: ReactNode }) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+
+  static getDerivedStateFromError(error: Error) {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error: Error, errorInfo: any) {
+    console.error('Error boundary caught error:', error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <View style={[styles.container, styles.errorContainer]}>
+          <Text style={styles.errorText}>Noe gikk galt</Text>
+          <Text style={styles.errorDetails}>
+            {this.state.error?.message || 'Ukjent feil'}
+          </Text>
+        </View>
+      );
+    }
+
+    return this.props.children;
+  }
+}
+
 export default function RootLayout() {
   useEffect(() => {
-    SplashScreen.hideAsync();
+    SplashScreen.hideAsync().catch((error) => {
+      console.error('Failed to hide splash screen:', error);
+    });
   }, []);
 
   return (
-    <trpc.Provider client={trpcClient} queryClient={queryClient}>
-      <QueryClientProvider client={queryClient}>
-        <SettingsProvider>
-          <GestureHandlerRootView style={styles.container}>
-            <View style={styles.container}>
-              <RootLayoutNav />
-              <AdBanner />
-            </View>
-          </GestureHandlerRootView>
-        </SettingsProvider>
-      </QueryClientProvider>
-    </trpc.Provider>
+    <ErrorBoundary>
+      <trpc.Provider client={trpcClient} queryClient={queryClient}>
+        <QueryClientProvider client={queryClient}>
+          <SettingsProvider>
+            <GestureHandlerRootView style={styles.container}>
+              <View style={styles.container}>
+                <RootLayoutNav />
+                <AdBanner />
+              </View>
+            </GestureHandlerRootView>
+          </SettingsProvider>
+        </QueryClientProvider>
+      </trpc.Provider>
+    </ErrorBoundary>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  errorContainer: {
+    justifyContent: 'center' as const,
+    alignItems: 'center' as const,
+    backgroundColor: '#EF4444',
+    padding: 20,
+  },
+  errorText: {
+    fontSize: 24,
+    fontWeight: '700' as const,
+    color: '#FFFFFF',
+    marginBottom: 10,
+  },
+  errorDetails: {
+    fontSize: 14,
+    color: '#FFFFFF',
+    textAlign: 'center' as const,
   },
 });

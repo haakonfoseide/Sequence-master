@@ -67,11 +67,15 @@ export function useBackgroundMusic(theme: MusicTheme, enabled: boolean = true) {
         isLoadingRef.current = true;
         console.log(`Loading music for theme: ${theme}`);
 
-        await Audio.setAudioModeAsync({
-          playsInSilentModeIOS: true,
-          staysActiveInBackground: false,
-          shouldDuckAndroid: true,
-        });
+        try {
+          await Audio.setAudioModeAsync({
+            playsInSilentModeIOS: true,
+            staysActiveInBackground: false,
+            shouldDuckAndroid: true,
+          });
+        } catch (audioModeError) {
+          console.log('Could not set audio mode, continuing anyway:', audioModeError);
+        }
 
         const { sound, status } = await Audio.Sound.createAsync(
           { uri: MUSIC_URLS[theme] },

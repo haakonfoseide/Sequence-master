@@ -42,14 +42,19 @@ export async function shareChallenge(data: ChallengeData): Promise<void> {
         Alert.alert('Kopiert!', 'Utfordringen er kopiert til utklippstavlen');
       }
     } else {
-      const isAvailable = await Sharing.isAvailableAsync();
-      if (isAvailable) {
-        const tempMessage = `data:text/plain;base64,${btoa(message)}`;
-        await Sharing.shareAsync(tempMessage, {
-          dialogTitle: 'Utfordre venner',
-        });
-      } else {
-        Alert.alert('Deling ikke tilgjengelig', 'Kan ikke dele på denne enheten');
+      try {
+        const isAvailable = await Sharing.isAvailableAsync();
+        if (isAvailable) {
+          const tempMessage = `data:text/plain;base64,${btoa(message)}`;
+          await Sharing.shareAsync(tempMessage, {
+            dialogTitle: 'Utfordre venner',
+          });
+        } else {
+          Alert.alert('Deling ikke tilgjengelig', 'Kan ikke dele på denne enheten');
+        }
+      } catch (nativeError) {
+        console.error('Native sharing error:', nativeError);
+        Alert.alert('Feil', 'Kunne ikke dele utfordringen');
       }
     }
   } catch (error) {
@@ -91,14 +96,19 @@ export async function shareScore(data: ChallengeData): Promise<void> {
         Alert.alert('Kopiert!', 'Scoren er kopiert til utklippstavlen');
       }
     } else {
-      const isAvailable = await Sharing.isAvailableAsync();
-      if (isAvailable) {
-        const tempMessage = `data:text/plain;base64,${btoa(message)}`;
-        await Sharing.shareAsync(tempMessage, {
-          dialogTitle: 'Del score',
-        });
-      } else {
-        Alert.alert('Deling ikke tilgjengelig', 'Kan ikke dele på denne enheten');
+      try {
+        const isAvailable = await Sharing.isAvailableAsync();
+        if (isAvailable) {
+          const tempMessage = `data:text/plain;base64,${btoa(message)}`;
+          await Sharing.shareAsync(tempMessage, {
+            dialogTitle: 'Del score',
+          });
+        } else {
+          Alert.alert('Deling ikke tilgjengelig', 'Kan ikke dele på denne enheten');
+        }
+      } catch (nativeError) {
+        console.error('Native sharing error:', nativeError);
+        Alert.alert('Feil', 'Kunne ikke dele scoren');
       }
     }
   } catch (error) {

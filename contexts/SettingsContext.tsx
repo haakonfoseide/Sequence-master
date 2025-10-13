@@ -243,13 +243,12 @@ export const [SettingsProvider, useSettings] = createContextHook(() => {
   useEffect(() => {
     const initializeSettings = async () => {
       try {
-        await Promise.all([
-          loadSettings(),
-          loadBestScores(),
-          loadAdRemovalStatus()
-        ]);
+        await loadSettings();
+        await loadBestScores();
+        await loadAdRemovalStatus();
       } catch (error) {
         console.error('Failed to initialize settings:', error);
+      } finally {
         setIsLoading(false);
       }
     };
@@ -271,7 +270,11 @@ export const [SettingsProvider, useSettings] = createContextHook(() => {
           }
         } catch (parseError) {
           console.error('Failed to parse settings, resetting to defaults:', parseError);
-          await AsyncStorage.removeItem(SETTINGS_KEY);
+          try {
+            await AsyncStorage.removeItem(SETTINGS_KEY);
+          } catch (removeError) {
+            console.error('Failed to remove invalid settings:', removeError);
+          }
           setTheme('orange');
           setMusicEnabled(true);
           setHapticsEnabled(true);
@@ -279,8 +282,9 @@ export const [SettingsProvider, useSettings] = createContextHook(() => {
       }
     } catch (error) {
       console.error('Failed to load settings:', error);
-    } finally {
-      setIsLoading(false);
+      setTheme('orange');
+      setMusicEnabled(true);
+      setHapticsEnabled(true);
     }
   };
 
@@ -300,17 +304,26 @@ export const [SettingsProvider, useSettings] = createContextHook(() => {
             });
           } else {
             console.log('Invalid best scores structure, resetting to defaults');
-            await AsyncStorage.removeItem(BEST_SCORES_KEY);
+            try {
+              await AsyncStorage.removeItem(BEST_SCORES_KEY);
+            } catch (removeError) {
+              console.error('Failed to remove invalid scores:', removeError);
+            }
             setBestScores(DEFAULT_BEST_SCORES);
           }
         } catch (parseError) {
           console.error('Failed to parse best scores, resetting to defaults:', parseError);
-          await AsyncStorage.removeItem(BEST_SCORES_KEY);
+          try {
+            await AsyncStorage.removeItem(BEST_SCORES_KEY);
+          } catch (removeError) {
+            console.error('Failed to remove invalid scores:', removeError);
+          }
           setBestScores(DEFAULT_BEST_SCORES);
         }
       }
     } catch (error) {
       console.error('Failed to load best scores:', error);
+      setBestScores(DEFAULT_BEST_SCORES);
     }
   };
 
