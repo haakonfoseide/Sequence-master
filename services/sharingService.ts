@@ -20,10 +20,18 @@ export async function shareChallenge(data: ChallengeData): Promise<void> {
   try {
     if (Platform.OS === 'web') {
       if (navigator.share) {
-        await navigator.share({
-          title: 'Sequence Master Utfordring',
-          text: message,
-        });
+        try {
+          await navigator.share({
+            title: 'Sequence Master Utfordring',
+            text: message,
+          });
+        } catch (shareError: any) {
+          if (shareError.name === 'NotAllowedError' || shareError.name === 'AbortError') {
+            console.log('Share cancelled or not allowed, falling back to clipboard');
+          }
+          await navigator.clipboard.writeText(message);
+          Alert.alert('Kopiert!', 'Utfordringen er kopiert til utklippstavlen');
+        }
       } else {
         await navigator.clipboard.writeText(message);
         Alert.alert('Kopiert!', 'Utfordringen er kopiert til utklippstavlen');
@@ -56,10 +64,18 @@ export async function shareScore(data: ChallengeData): Promise<void> {
   try {
     if (Platform.OS === 'web') {
       if (navigator.share) {
-        await navigator.share({
-          title: 'Sequence Master Score',
-          text: message,
-        });
+        try {
+          await navigator.share({
+            title: 'Sequence Master Score',
+            text: message,
+          });
+        } catch (shareError: any) {
+          if (shareError.name === 'NotAllowedError' || shareError.name === 'AbortError') {
+            console.log('Share cancelled or not allowed, falling back to clipboard');
+          }
+          await navigator.clipboard.writeText(message);
+          Alert.alert('Kopiert!', 'Scoren er kopiert til utklippstavlen');
+        }
       } else {
         await navigator.clipboard.writeText(message);
         Alert.alert('Kopiert!', 'Scoren er kopiert til utklippstavlen');
