@@ -33,6 +33,7 @@ export default function PiGameScreen() {
   const [userInput, setUserInput] = useState<string>('');
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
   const [showingIndex, setShowingIndex] = useState<number>(0);
+  const [isNewRecord, setIsNewRecord] = useState<boolean>(false);
 
   const digitScale = useRef(new Animated.Value(1)).current;
   const resultOpacity = useRef(new Animated.Value(0)).current;
@@ -79,6 +80,7 @@ export default function PiGameScreen() {
     setUserInput('');
     setIsCorrect(null);
     setShowingIndex(0);
+    setIsNewRecord(false);
     
     if (piMode === 'sequence') {
       setGamePhase('showing');
@@ -112,6 +114,12 @@ export default function PiGameScreen() {
     setGamePhase('result');
 
     if (correct) {
+      const isRecord = piMode === 'sequence' 
+        ? currentLevel > bestScores.pi
+        : input.length > bestScores.piFree;
+      
+      setIsNewRecord(isRecord);
+
       Animated.timing(resultOpacity, {
         toValue: 1,
         duration: 300,
@@ -131,6 +139,11 @@ export default function PiGameScreen() {
       }
     } else {
       const actualScore = piMode === 'free' ? Math.max(0, input.length - 1) : currentLevel;
+      const isRecord = piMode === 'sequence'
+        ? actualScore > bestScores.pi
+        : actualScore > bestScores.piFree;
+      
+      setIsNewRecord(isRecord);
       
       if (piMode === 'sequence' && actualScore > bestScores.pi) {
         updateBestScore('pi', actualScore);
@@ -453,8 +466,7 @@ export default function PiGameScreen() {
                     </View>
                   </View>
 
-                  {((piMode === 'sequence' && currentLevel > (bestScores.pi || 0)) || 
-                    (piMode === 'free' && Math.max(0, userInput.length - 1) > (bestScores.piFree || 0))) && (
+                  {isNewRecord && (
                     <View style={styles.newRecordBadge}>
                       <Trophy color={colors.digit.correct} size={20} />
                       <Text style={[styles.newRecordText, { color: colors.digit.correct }]}>Ny Rekord!</Text>
