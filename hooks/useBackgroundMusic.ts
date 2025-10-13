@@ -20,6 +20,12 @@ async function initializeAudioMode() {
   }
 
   try {
+    if (!Audio || !Audio.setAudioModeAsync) {
+      console.log('Audio API not available');
+      audioModeInitialized = true;
+      return;
+    }
+    
     await Audio.setAudioModeAsync({
       playsInSilentModeIOS: true,
       staysActiveInBackground: false,
@@ -50,6 +56,11 @@ export function useBackgroundMusic(theme: MusicTheme, enabled: boolean = true) {
       if (isLoadingRef.current) return;
 
       try {
+        if (!Audio || !Audio.Sound) {
+          console.log('Audio API not available, skipping music');
+          return;
+        }
+
         if (globalSound && globalTheme === theme) {
           console.log(`Music already loaded for theme: ${theme}`);
           soundRef.current = globalSound;

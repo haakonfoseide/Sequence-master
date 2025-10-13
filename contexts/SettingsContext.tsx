@@ -249,7 +249,7 @@ export const [SettingsProvider, useSettings] = createContextHook(() => {
           loadAdRemovalStatus(),
         ]);
       } catch (error) {
-        console.error('Failed to initialize settings:', error);
+        console.log('Failed to initialize settings:', error);
       } finally {
         setIsLoading(false);
       }
@@ -262,11 +262,11 @@ export const [SettingsProvider, useSettings] = createContextHook(() => {
       const stored = await AsyncStorage.getItem(SETTINGS_KEY);
       if (stored && typeof stored === 'string' && stored.trim().length > 0) {
         if (!stored.startsWith('{') && !stored.startsWith('[')) {
-          console.error('Invalid JSON format, clearing storage');
+          console.log('Invalid JSON format, clearing storage');
           try {
             await AsyncStorage.removeItem(SETTINGS_KEY);
           } catch (err) {
-            console.error('Failed to clear invalid settings:', err);
+            console.log('Failed to clear invalid settings:', err);
           }
           return;
         }
@@ -279,7 +279,7 @@ export const [SettingsProvider, useSettings] = createContextHook(() => {
           try {
             await AsyncStorage.removeItem(SETTINGS_KEY);
           } catch (err) {
-            console.error('Failed to clear invalid settings:', err);
+            console.log('Failed to clear invalid settings:', err);
           }
           setTheme('orange');
           setMusicEnabled(true);
@@ -287,7 +287,7 @@ export const [SettingsProvider, useSettings] = createContextHook(() => {
         }
       }
     } catch (error) {
-      console.error('Failed to load settings:', error);
+      console.log('Failed to load settings:', error);
       setTheme('orange');
       setMusicEnabled(true);
       setHapticsEnabled(true);
@@ -299,11 +299,11 @@ export const [SettingsProvider, useSettings] = createContextHook(() => {
       const stored = await AsyncStorage.getItem(BEST_SCORES_KEY);
       if (stored && typeof stored === 'string' && stored.trim().length > 0) {
         if (!stored.startsWith('{') && !stored.startsWith('[')) {
-          console.error('Invalid JSON format for scores, clearing storage');
+          console.log('Invalid JSON format for scores, clearing storage');
           try {
             await AsyncStorage.removeItem(BEST_SCORES_KEY);
           } catch (err) {
-            console.error('Failed to clear invalid scores:', err);
+            console.log('Failed to clear invalid scores:', err);
           }
           return;
         }
@@ -321,13 +321,13 @@ export const [SettingsProvider, useSettings] = createContextHook(() => {
           try {
             await AsyncStorage.removeItem(BEST_SCORES_KEY);
           } catch (err) {
-            console.error('Failed to clear invalid scores:', err);
+            console.log('Failed to clear invalid scores:', err);
           }
           setBestScores(DEFAULT_BEST_SCORES);
         }
       }
     } catch (error) {
-      console.error('Failed to load best scores:', error);
+      console.log('Failed to load best scores:', error);
       setBestScores(DEFAULT_BEST_SCORES);
     }
   };
@@ -339,7 +339,7 @@ export const [SettingsProvider, useSettings] = createContextHook(() => {
         JSON.stringify({ theme: newTheme, musicEnabled: newMusicEnabled, hapticsEnabled: newHapticsEnabled })
       );
     } catch (error) {
-      console.error('Failed to save settings:', error);
+      console.log('Failed to save settings:', error);
     }
   };
 
@@ -394,7 +394,7 @@ export const [SettingsProvider, useSettings] = createContextHook(() => {
     try {
       await AsyncStorage.setItem(BEST_SCORES_KEY, JSON.stringify(DEFAULT_BEST_SCORES));
     } catch (error) {
-      console.error('Failed to reset best scores:', error);
+      console.log('Failed to reset best scores:', error);
     }
   }, []);
 
@@ -405,7 +405,7 @@ export const [SettingsProvider, useSettings] = createContextHook(() => {
         setAdsRemoved(stored === 'true');
       }
     } catch (error) {
-      console.error('Failed to load ad removal status:', error);
+      console.log('Failed to load ad removal status:', error);
       setAdsRemoved(false);
     }
   };
@@ -415,7 +415,7 @@ export const [SettingsProvider, useSettings] = createContextHook(() => {
     try {
       await AsyncStorage.setItem(AD_REMOVAL_KEY, removed ? 'true' : 'false');
     } catch (error) {
-      console.error('Failed to save ad removal status:', error);
+      console.log('Failed to save ad removal status:', error);
     }
   }, []);
 
