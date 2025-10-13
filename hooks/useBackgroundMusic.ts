@@ -1,7 +1,6 @@
-import { useEffect, useMemo, useRef } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Platform, AppState, AppStateStatus } from 'react-native';
 import { Audio, InterruptionModeAndroid, InterruptionModeIOS } from 'expo-av';
-import React from "react";
 
 export type MusicTheme = 'pi' | 'colors' | 'numbers';
 
@@ -35,6 +34,7 @@ export function useBackgroundMusic(theme: MusicTheme, enabled: boolean = true): 
   const soundRef = useRef<Audio.Sound | null>(null);
   const controlsRef = useRef<BackgroundMusicControls | null>(null);
   const appStateRef = useRef<AppStateStatus>('active');
+  const [hasUserInteracted, setHasUserInteracted] = useState(false);
 
   const source = useMemo(() => THEME_TRACKS[theme] ?? THEME_TRACKS.pi, [theme]);
 
@@ -77,14 +77,14 @@ export function useBackgroundMusic(theme: MusicTheme, enabled: boolean = true): 
             try {
               if (soundRef.current) {
                 await Audio.setIsEnabledAsync(true);
-                await soundRef.current.playAsync();
+                const status = await soundRef.current.getStatusAsync();
+                if (status.isLoaded && !status.isPlaying) {
+                  await soundRef.current.playAsync();
+                  console.log('Music started playing');
+                }
               }
             } catch (err: any) {
-              if (Platform.OS === 'web') {
-                console.log('Autoplay may be blocked on web. User interaction required.', err?.message ?? err);
-              } else {
-                console.log('Failed to start background music', err);
-              }
+              console.log('Failed to start background music:', err?.message ?? err);
             }
           },
           pause: async () => {
@@ -108,7 +108,7 @@ export function useBackgroundMusic(theme: MusicTheme, enabled: boolean = true): 
         };
         latestControls = controlsRef.current;
 
-        if (enabled) {
+        if (enabled && Platform.OS !== 'web') {
           await controlsRef.current.play();
         }
       } catch (e) {
@@ -148,6 +148,10 @@ export function useBackgroundMusic(theme: MusicTheme, enabled: boolean = true): 
       try {
         if (!controlsRef.current) return;
         if (enabled) {
+          if (Platform.OS === 'web' && !hasUserInteracted) {
+            console.log('Waiting for user interaction to start music on web');
+            return;
+          }
           await controlsRef.current.play();
         } else {
           await controlsRef.current.pause();
@@ -157,6 +161,29 @@ export function useBackgroundMusic(theme: MusicTheme, enabled: boolean = true): 
       }
     };
     applyEnabled();
+  }, [enabled, hasUserInteracted]);
+
+  useEffect(() => {
+    if (Platform.OS === 'web') {
+      const handleInteraction = () => {
+        setHasUserInteracted(true);
+        if (enabled && controlsRef.current) {
+          controlsRef.current.play().catch(err => {
+            console.log('Failed to start music after interaction:', err);
+          });
+        }
+      };
+
+      document.addEventListener('click', handleInteraction, { once: true });
+      document.addEventListener('touchstart', handleInteraction, { once: true });
+
+      return () => {
+        document.removeEventListener('click', handleInteraction);
+        document.removeEventListener('touchstart', handleInteraction);
+      };
+    } else {
+      setHasUserInteracted(true);
+    }
   }, [enabled]);
 
   return controlsRef;
