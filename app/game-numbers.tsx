@@ -95,15 +95,23 @@ export default function NumbersGameScreen() {
   }, [currentLevel, generateSequence]);
 
   useEffect(() => {
-    if (sequence.length === 0) {
-      startGame();
+    try {
+      if (sequence.length === 0) {
+        startGame();
+      }
+    } catch (error) {
+      console.error('Error starting game:', error);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
-    if (gamePhase === 'showing' && sequence.length > 0) {
-      showSequence();
+    try {
+      if (gamePhase === 'showing' && sequence.length > 0) {
+        showSequence();
+      }
+    } catch (error) {
+      console.error('Error showing sequence:', error);
     }
   }, [gamePhase, sequence, showSequence]);
 

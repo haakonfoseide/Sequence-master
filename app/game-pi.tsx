@@ -89,7 +89,11 @@ export default function PiGameScreen() {
   }, [currentLevel, showSequence, piMode]);
 
   useEffect(() => {
-    startGame();
+    try {
+      startGame();
+    } catch (error) {
+      console.error('Error starting game:', error);
+    }
   }, [startGame]);
 
   const nextLevel = useCallback(() => {
@@ -188,15 +192,19 @@ export default function PiGameScreen() {
 
   useEffect(() => {
     const handleKeyPress = (e: any) => {
-      if (gamePhase !== 'input') return;
-      
-      const key = e.key || e.nativeEvent?.key;
-      if (!key) return;
+      try {
+        if (gamePhase !== 'input') return;
+        
+        const key = e.key || e.nativeEvent?.key;
+        if (!key) return;
 
-      if (key >= '0' && key <= '9') {
-        handleNumberPress(key);
-      } else if (key === 'Backspace' || key === 'Delete') {
-        handleBackspace();
+        if (key >= '0' && key <= '9') {
+          handleNumberPress(key);
+        } else if (key === 'Backspace' || key === 'Delete') {
+          handleBackspace();
+        }
+      } catch (error) {
+        console.error('Error handling key press:', error);
       }
     };
 

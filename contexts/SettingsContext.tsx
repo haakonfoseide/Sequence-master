@@ -243,16 +243,21 @@ export const [SettingsProvider, useSettings] = createContextHook(() => {
   useEffect(() => {
     const initializeSettings = async () => {
       try {
-        await loadSettings();
-        await loadBestScores();
-        await loadAdRemovalStatus();
+        await Promise.all([
+          loadSettings().catch(err => console.error('Load settings error:', err)),
+          loadBestScores().catch(err => console.error('Load scores error:', err)),
+          loadAdRemovalStatus().catch(err => console.error('Load ad status error:', err)),
+        ]);
       } catch (error) {
         console.error('Failed to initialize settings:', error);
       } finally {
         setIsLoading(false);
       }
     };
-    initializeSettings();
+    initializeSettings().catch(err => {
+      console.error('Initialize settings failed:', err);
+      setIsLoading(false);
+    });
   }, []);
 
   const loadSettings = async () => {
@@ -364,26 +369,21 @@ export const [SettingsProvider, useSettings] = createContextHook(() => {
   const updateBestScore = useCallback(async (mode: GameMode | 'piFree', score: number) => {
     try {
       console.log('Updating best score:', mode, score);
-      const newScores = await new Promise<BestScores>((resolve) => {
-        setBestScores(prev => {
-          const updated = { ...prev };
-          const currentScore = updated[mode as keyof BestScores];
-          console.log('Current score:', currentScore, 'New score:', score);
-          if (score > currentScore) {
-            updated[mode as keyof BestScores] = score;
-            console.log('New high score! Saving:', updated);
-          }
-          resolve(updated);
-          return updated;
-        });
-      });
       
-      try {
-        await AsyncStorage.setItem(BEST_SCORES_KEY, JSON.stringify(newScores));
-        console.log('Best scores saved successfully');
-      } catch (error) {
-        console.log('Failed to save best scores to storage:', error);
-      }
+      setBestScores(prev => {
+        const updated = { ...prev };
+        const currentScore = updated[mode as keyof BestScores];
+        console.log('Current score:', currentScore, 'New score:', score);
+        if (score > currentScore) {
+          updated[mode as keyof BestScores] = score;
+          console.log('New high score! Saving:', updated);
+          
+          AsyncStorage.setItem(BEST_SCORES_KEY, JSON.stringify(updated))
+            .then(() => console.log('Best scores saved successfully'))
+            .catch(error => console.log('Failed to save best scores to storage:', error));
+        }
+        return updated;
+      });
     } catch (error) {
       console.log('Failed to update best score:', error);
     }
