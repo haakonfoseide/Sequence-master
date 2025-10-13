@@ -28,7 +28,7 @@ async function initializeAudioMode() {
     audioModeInitialized = true;
     console.log('Audio mode initialized successfully');
   } catch (error: any) {
-    console.log('Could not initialize audio mode:', error?.message || error);
+    console.log('Could not initialize audio mode:', error?.message || String(error));
     audioModeInitialized = true;
   }
 }
@@ -49,33 +49,41 @@ export function useBackgroundMusic(theme: MusicTheme, enabled: boolean = true) {
     const loadAndPlayMusic = async () => {
       if (isLoadingRef.current) return;
 
-      if (globalSound && globalTheme === theme) {
-        console.log(`Music already loaded for theme: ${theme}`);
-        soundRef.current = globalSound;
-        
-        if (enabled) {
-          const status = await globalSound.getStatusAsync();
-          if (status.isLoaded && !status.isPlaying) {
-            console.log(`Resuming music for theme: ${theme}`);
-            await globalSound.playAsync();
-          }
-        }
-        return;
-      }
-
-      if (globalSound && globalTheme !== theme) {
-        console.log(`Stopping previous music (${globalTheme}) to play new theme: ${theme}`);
-        await globalSound.unloadAsync();
-        globalSound = null;
-        globalTheme = null;
-      }
-
-      if (!enabled) {
-        console.log('Music disabled, not loading');
-        return;
-      }
-
       try {
+        if (globalSound && globalTheme === theme) {
+          console.log(`Music already loaded for theme: ${theme}`);
+          soundRef.current = globalSound;
+          
+          if (enabled) {
+            try {
+              const status = await globalSound.getStatusAsync();
+              if (status.isLoaded && !status.isPlaying) {
+                console.log(`Resuming music for theme: ${theme}`);
+                await globalSound.playAsync();
+              }
+            } catch (err: any) {
+              console.log('Error resuming music:', err?.message || String(err));
+            }
+          }
+          return;
+        }
+
+        if (globalSound && globalTheme !== theme) {
+          console.log(`Stopping previous music (${globalTheme}) to play new theme: ${theme}`);
+          try {
+            await globalSound.unloadAsync();
+          } catch (err: any) {
+            console.log('Error unloading previous music:', err?.message || String(err));
+          }
+          globalSound = null;
+          globalTheme = null;
+        }
+
+        if (!enabled) {
+          console.log('Music disabled, not loading');
+          return;
+        }
+
         isLoadingRef.current = true;
         console.log(`Loading music for theme: ${theme}`);
 
@@ -106,11 +114,15 @@ export function useBackgroundMusic(theme: MusicTheme, enabled: boolean = true) {
           globalTheme = theme;
           console.log(`Music playing for theme: ${theme}`);
         } else {
-          await sound.unloadAsync();
+          try {
+            await sound.unloadAsync();
+          } catch (err: any) {
+            console.log('Error unloading sound:', err?.message || String(err));
+          }
         }
       } catch (error: any) {
         console.log('Background music could not be loaded. Continuing without music.');
-        console.log('Music error details:', error?.message || error);
+        console.log('Music error details:', error?.message || String(error));
       } finally {
         isLoadingRef.current = false;
       }
@@ -118,10 +130,14 @@ export function useBackgroundMusic(theme: MusicTheme, enabled: boolean = true) {
 
     const stopMusic = async () => {
       if (globalSound) {
-        const status = await globalSound.getStatusAsync();
-        if (status.isLoaded && status.isPlaying) {
-          console.log(`Pausing music for theme: ${globalTheme}`);
-          await globalSound.pauseAsync();
+        try {
+          const status = await globalSound.getStatusAsync();
+          if (status.isLoaded && status.isPlaying) {
+            console.log(`Pausing music for theme: ${globalTheme}`);
+            await globalSound.pauseAsync();
+          }
+        } catch (error: any) {
+          console.log('Error stopping music:', error?.message || String(error));
         }
       }
     };

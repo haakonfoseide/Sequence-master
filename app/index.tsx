@@ -1,6 +1,6 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import {
   StyleSheet,
   Text,
@@ -16,17 +16,29 @@ import { AD_BANNER_HEIGHT } from '@/components/AdBanner';
 export default function HomeScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
-  const { colors, bestScores, musicEnabled, adsRemoved } = useSettings();
-  const [displayScores, setDisplayScores] = useState(bestScores);
+  const { colors, bestScores, musicEnabled, adsRemoved, isLoading } = useSettings();
   
   useBackgroundMusic('pi', musicEnabled);
 
-  useEffect(() => {
-    setDisplayScores(bestScores);
-  }, [bestScores]);
+  if (isLoading) {
+    return (
+      <LinearGradient
+        colors={[colors.background.start, colors.background.end]}
+        style={styles.container}
+      >
+        <View style={[styles.safeArea, { justifyContent: 'center', alignItems: 'center' }]}>
+          <Text style={[styles.title, { color: colors.text.primary }]}>Sequence Master</Text>
+        </View>
+      </LinearGradient>
+    );
+  }
 
   const getBestScore = (mode: 'colors' | 'numbers' | 'pi') => {
-    return displayScores[mode] || 0;
+    return bestScores[mode] || 0;
+  };
+
+  const getPiFreeScore = () => {
+    return bestScores.piFree || 0;
   };
 
   const adBannerSpace = adsRemoved ? 0 : AD_BANNER_HEIGHT;
@@ -77,7 +89,7 @@ export default function HomeScreen() {
               </View>
               <View style={styles.recordRow}>
                 <Text style={[styles.recordLabel, { color: colors.text.primary }]}>Pi (Fritt)</Text>
-                <Text style={[styles.recordValue, { color: colors.text.primary }]}>{displayScores.piFree || 0}</Text>
+                <Text style={[styles.recordValue, { color: colors.text.primary }]}>{getPiFreeScore()}</Text>
               </View>
             </View>
           </View>

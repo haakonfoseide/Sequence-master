@@ -263,7 +263,11 @@ export const [SettingsProvider, useSettings] = createContextHook(() => {
       if (stored && typeof stored === 'string' && stored.trim().length > 0) {
         if (!stored.startsWith('{') && !stored.startsWith('[')) {
           console.error('Invalid JSON format, clearing storage');
-          await AsyncStorage.removeItem(SETTINGS_KEY);
+          try {
+            await AsyncStorage.removeItem(SETTINGS_KEY);
+          } catch (err) {
+            console.error('Failed to clear invalid settings:', err);
+          }
           return;
         }
         const settings = JSON.parse(stored);
@@ -272,7 +276,11 @@ export const [SettingsProvider, useSettings] = createContextHook(() => {
           setMusicEnabled(settings.musicEnabled ?? true);
           setHapticsEnabled(settings.hapticsEnabled ?? true);
         } else {
-          await AsyncStorage.removeItem(SETTINGS_KEY);
+          try {
+            await AsyncStorage.removeItem(SETTINGS_KEY);
+          } catch (err) {
+            console.error('Failed to clear invalid settings:', err);
+          }
           setTheme('orange');
           setMusicEnabled(true);
           setHapticsEnabled(true);
@@ -292,7 +300,11 @@ export const [SettingsProvider, useSettings] = createContextHook(() => {
       if (stored && typeof stored === 'string' && stored.trim().length > 0) {
         if (!stored.startsWith('{') && !stored.startsWith('[')) {
           console.error('Invalid JSON format for scores, clearing storage');
-          await AsyncStorage.removeItem(BEST_SCORES_KEY);
+          try {
+            await AsyncStorage.removeItem(BEST_SCORES_KEY);
+          } catch (err) {
+            console.error('Failed to clear invalid scores:', err);
+          }
           return;
         }
         const scores = JSON.parse(stored);
@@ -306,7 +318,11 @@ export const [SettingsProvider, useSettings] = createContextHook(() => {
           });
         } else {
           console.log('Invalid best scores structure, resetting to defaults');
-          await AsyncStorage.removeItem(BEST_SCORES_KEY);
+          try {
+            await AsyncStorage.removeItem(BEST_SCORES_KEY);
+          } catch (err) {
+            console.error('Failed to clear invalid scores:', err);
+          }
           setBestScores(DEFAULT_BEST_SCORES);
         }
       }
@@ -390,6 +406,7 @@ export const [SettingsProvider, useSettings] = createContextHook(() => {
       }
     } catch (error) {
       console.error('Failed to load ad removal status:', error);
+      setAdsRemoved(false);
     }
   };
 
