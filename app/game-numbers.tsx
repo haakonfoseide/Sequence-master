@@ -307,15 +307,11 @@ export default function NumbersGameScreen() {
                     Du husket {currentLevel} tall i riktig rekkefølge!
                   </Text>
 
-                  <TouchableOpacity
-                    style={[styles.continueButton, { backgroundColor: colors.button.primary }]}
-                    onPress={nextLevel}
-                    activeOpacity={0.8}
-                  >
-                    <Text style={[styles.continueButtonText, { color: colors.button.primaryText }]}>
-                      Neste Nivå ({currentLevel + 1} tall)
+                  <View style={styles.autoAdvanceContainer}>
+                    <Text style={[styles.autoAdvanceText, { color: colors.text.secondary }]}>
+                      Går videre automatisk...
                     </Text>
-                  </TouchableOpacity>
+                  </View>
                 </>
               ) : (
                 <>
@@ -468,16 +464,14 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '700' as const,
   },
-  continueButton: {
-    borderRadius: 16,
+  autoAdvanceContainer: {
     paddingVertical: 18,
     paddingHorizontal: 32,
-    minWidth: 200,
+    alignItems: 'center',
   },
-  continueButtonText: {
-    fontSize: 18,
-    fontWeight: '700' as const,
-    textAlign: 'center',
+  autoAdvanceText: {
+    fontSize: 16,
+    fontWeight: '600' as const,
   },
   restartButton: {
     flex: 1,
