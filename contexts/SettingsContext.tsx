@@ -244,9 +244,9 @@ export const [SettingsProvider, useSettings] = createContextHook(() => {
     const initializeSettings = async () => {
       try {
         await Promise.all([
-          loadSettings().catch(err => console.error('Load settings error:', err)),
-          loadBestScores().catch(err => console.error('Load scores error:', err)),
-          loadAdRemovalStatus().catch(err => console.error('Load ad status error:', err)),
+          loadSettings(),
+          loadBestScores(),
+          loadAdRemovalStatus(),
         ]);
       } catch (error) {
         console.error('Failed to initialize settings:', error);
@@ -254,42 +254,25 @@ export const [SettingsProvider, useSettings] = createContextHook(() => {
         setIsLoading(false);
       }
     };
-    initializeSettings().catch(err => {
-      console.error('Initialize settings failed:', err);
-      setIsLoading(false);
-    });
+    initializeSettings();
   }, []);
 
   const loadSettings = async () => {
     try {
-      const stored = await AsyncStorage.getItem(SETTINGS_KEY).catch((err: any) => {
-        console.error('AsyncStorage getItem error:', err);
-        return null;
-      });
+      const stored = await AsyncStorage.getItem(SETTINGS_KEY);
       if (stored && typeof stored === 'string' && stored.trim().length > 0) {
-        try {
-          if (!stored.startsWith('{') && !stored.startsWith('[')) {
-            console.error('Invalid JSON format, clearing storage');
-            await AsyncStorage.removeItem(SETTINGS_KEY).catch(() => {});
-            return;
-          }
-          const settings = JSON.parse(stored);
-          if (settings && typeof settings === 'object' && !Array.isArray(settings)) {
-            setTheme(settings.theme || 'orange');
-            setMusicEnabled(settings.musicEnabled ?? true);
-            setHapticsEnabled(settings.hapticsEnabled ?? true);
-          } else {
-            throw new Error('Invalid settings format');
-          }
-        } catch (parseError) {
-          console.error('Failed to parse settings, resetting to defaults:', parseError);
-          try {
-            await AsyncStorage.removeItem(SETTINGS_KEY).catch((err: any) => {
-              console.error('AsyncStorage removeItem error:', err);
-            });
-          } catch (removeError) {
-            console.error('Failed to remove invalid settings:', removeError);
-          }
+        if (!stored.startsWith('{') && !stored.startsWith('[')) {
+          console.error('Invalid JSON format, clearing storage');
+          await AsyncStorage.removeItem(SETTINGS_KEY);
+          return;
+        }
+        const settings = JSON.parse(stored);
+        if (settings && typeof settings === 'object' && !Array.isArray(settings)) {
+          setTheme(settings.theme || 'orange');
+          setMusicEnabled(settings.musicEnabled ?? true);
+          setHapticsEnabled(settings.hapticsEnabled ?? true);
+        } else {
+          await AsyncStorage.removeItem(SETTINGS_KEY);
           setTheme('orange');
           setMusicEnabled(true);
           setHapticsEnabled(true);
@@ -305,46 +288,25 @@ export const [SettingsProvider, useSettings] = createContextHook(() => {
 
   const loadBestScores = async () => {
     try {
-      const stored = await AsyncStorage.getItem(BEST_SCORES_KEY).catch((err: any) => {
-        console.error('AsyncStorage getItem error:', err);
-        return null;
-      });
+      const stored = await AsyncStorage.getItem(BEST_SCORES_KEY);
       if (stored && typeof stored === 'string' && stored.trim().length > 0) {
-        try {
-          if (!stored.startsWith('{') && !stored.startsWith('[')) {
-            console.error('Invalid JSON format for scores, clearing storage');
-            await AsyncStorage.removeItem(BEST_SCORES_KEY).catch(() => {});
-            return;
-          }
-          const scores = JSON.parse(stored);
-          if (scores && typeof scores === 'object' && !Array.isArray(scores) &&
-              typeof scores.colors === 'number' && 
-              typeof scores.numbers === 'number' && 
-              typeof scores.pi === 'number') {
-            setBestScores({
-              ...DEFAULT_BEST_SCORES,
-              ...scores,
-            });
-          } else {
-            console.log('Invalid best scores structure, resetting to defaults');
-            try {
-              await AsyncStorage.removeItem(BEST_SCORES_KEY).catch((err: any) => {
-                console.error('AsyncStorage removeItem error:', err);
-              });
-            } catch (removeError) {
-              console.error('Failed to remove invalid scores:', removeError);
-            }
-            setBestScores(DEFAULT_BEST_SCORES);
-          }
-        } catch (parseError) {
-          console.error('Failed to parse best scores, resetting to defaults:', parseError);
-          try {
-            await AsyncStorage.removeItem(BEST_SCORES_KEY).catch((err: any) => {
-              console.error('AsyncStorage removeItem error:', err);
-            });
-          } catch (removeError) {
-            console.error('Failed to remove invalid scores:', removeError);
-          }
+        if (!stored.startsWith('{') && !stored.startsWith('[')) {
+          console.error('Invalid JSON format for scores, clearing storage');
+          await AsyncStorage.removeItem(BEST_SCORES_KEY);
+          return;
+        }
+        const scores = JSON.parse(stored);
+        if (scores && typeof scores === 'object' && !Array.isArray(scores) &&
+            typeof scores.colors === 'number' && 
+            typeof scores.numbers === 'number' && 
+            typeof scores.pi === 'number') {
+          setBestScores({
+            ...DEFAULT_BEST_SCORES,
+            ...scores,
+          });
+        } else {
+          console.log('Invalid best scores structure, resetting to defaults');
+          await AsyncStorage.removeItem(BEST_SCORES_KEY);
           setBestScores(DEFAULT_BEST_SCORES);
         }
       }
@@ -359,9 +321,7 @@ export const [SettingsProvider, useSettings] = createContextHook(() => {
       await AsyncStorage.setItem(
         SETTINGS_KEY,
         JSON.stringify({ theme: newTheme, musicEnabled: newMusicEnabled, hapticsEnabled: newHapticsEnabled })
-      ).catch((err: any) => {
-        console.error('AsyncStorage setItem error:', err);
-      });
+      );
     } catch (error) {
       console.error('Failed to save settings:', error);
     }
@@ -416,9 +376,7 @@ export const [SettingsProvider, useSettings] = createContextHook(() => {
   const resetBestScores = useCallback(async () => {
     setBestScores(DEFAULT_BEST_SCORES);
     try {
-      await AsyncStorage.setItem(BEST_SCORES_KEY, JSON.stringify(DEFAULT_BEST_SCORES)).catch((err: any) => {
-        console.error('AsyncStorage setItem error:', err);
-      });
+      await AsyncStorage.setItem(BEST_SCORES_KEY, JSON.stringify(DEFAULT_BEST_SCORES));
     } catch (error) {
       console.error('Failed to reset best scores:', error);
     }
@@ -426,10 +384,7 @@ export const [SettingsProvider, useSettings] = createContextHook(() => {
 
   const loadAdRemovalStatus = async () => {
     try {
-      const stored = await AsyncStorage.getItem(AD_REMOVAL_KEY).catch((err: any) => {
-        console.error('AsyncStorage getItem error:', err);
-        return null;
-      });
+      const stored = await AsyncStorage.getItem(AD_REMOVAL_KEY);
       if (stored && typeof stored === 'string') {
         setAdsRemoved(stored === 'true');
       }
@@ -441,9 +396,7 @@ export const [SettingsProvider, useSettings] = createContextHook(() => {
   const setAdRemovalStatus = useCallback(async (removed: boolean) => {
     setAdsRemoved(removed);
     try {
-      await AsyncStorage.setItem(AD_REMOVAL_KEY, removed ? 'true' : 'false').catch((err: any) => {
-        console.error('AsyncStorage setItem error:', err);
-      });
+      await AsyncStorage.setItem(AD_REMOVAL_KEY, removed ? 'true' : 'false');
     } catch (error) {
       console.error('Failed to save ad removal status:', error);
     }
