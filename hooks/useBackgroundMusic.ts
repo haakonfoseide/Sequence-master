@@ -1,11 +1,148 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
+import { Platform, AppState, AppStateStatus } from 'react-native';
+import { Audio, InterruptionModeAndroid, InterruptionModeIOS } from 'expo-av';
+import React from "react";
 
-type MusicTheme = 'pi' | 'colors' | 'numbers';
+export type MusicTheme = 'pi' | 'colors' | 'numbers';
 
-export function useBackgroundMusic(theme: MusicTheme, enabled: boolean = true) {
+interface BackgroundMusicControls {
+  play: () => Promise<void>;
+  pause: () => Promise<void>;
+  setVolume: (v: number) => Promise<void>;
+}
+
+const THEME_TRACKS: Record<MusicTheme, string> = {
+  // Royalty-free calm tracks hosted on Pixabay CDN
+  // Fallback to the same gentle loop for all themes to keep experience consistent
+  pi: 'https://cdn.pixabay.com/download/audio/2022/03/15/audio_6e6aab4b4e.mp3?filename=calm-ambient-110058.mp3',
+  colors: 'https://cdn.pixabay.com/download/audio/2022/03/15/audio_6e6aab4b4e.mp3?filename=calm-ambient-110058.mp3',
+  numbers: 'https://cdn.pixabay.com/download/audio/2022/03/15/audio_6e6aab4b4e.mp3?filename=calm-ambient-110058.mp3',
+};
+
+export function useBackgroundMusic(theme: MusicTheme, enabled: boolean = true): React.MutableRefObject<BackgroundMusicControls | null> {
+  const soundRef = useRef<Audio.Sound | null>(null);
+  const controlsRef = useRef<BackgroundMusicControls | null>(null);
+  const appStateRef = useRef<AppStateStatus>('active');
+
+  const source = useMemo(() => THEME_TRACKS[theme] ?? THEME_TRACKS.pi, [theme]);
+
   useEffect(() => {
-    console.log(`Background music ${enabled ? 'enabled' : 'disabled'} for theme: ${theme}`);
-  }, [theme, enabled]);
+    let isMounted = true;
 
-  return useRef(null);
+    const setupAsync = async () => {
+      try {
+        await Audio.setAudioModeAsync({
+          allowsRecordingIOS: false,
+          staysActiveInBackground: false,
+          interruptionModeIOS: InterruptionModeIOS.DuckOthers,
+          playsInSilentModeIOS: true,
+          shouldDuckAndroid: true,
+          interruptionModeAndroid: InterruptionModeAndroid.DuckOthers,
+          playThroughEarpieceAndroid: false,
+        });
+      } catch (e) {
+        console.log('Audio mode setup failed', e);
+      }
+
+      try {
+        if (soundRef.current) {
+          await soundRef.current.unloadAsync().catch(() => {});
+          soundRef.current = null;
+        }
+
+        const { sound } = await Audio.Sound.createAsync(
+          { uri: source },
+          { isLooping: true, volume: 0.18, shouldPlay: false }
+        );
+        if (!isMounted) {
+          await sound.unloadAsync().catch(() => {});
+          return;
+        }
+        soundRef.current = sound;
+
+        controlsRef.current = {
+          play: async () => {
+            try {
+              if (soundRef.current) {
+                await soundRef.current.playAsync();
+              }
+            } catch (err: any) {
+              if (Platform.OS === 'web') {
+                console.log('Autoplay may be blocked on web. User interaction required.', err?.message ?? err);
+              } else {
+                console.log('Failed to start background music', err);
+              }
+            }
+          },
+          pause: async () => {
+            try {
+              if (soundRef.current) {
+                await soundRef.current.pauseAsync();
+              }
+            } catch (err) {
+              console.log('Failed to pause background music', err);
+            }
+          },
+          setVolume: async (v: number) => {
+            try {
+              if (soundRef.current) {
+                await soundRef.current.setVolumeAsync(Math.min(1, Math.max(0, v)));
+              }
+            } catch (err) {
+              console.log('Failed to set volume', err);
+            }
+          },
+        };
+
+        if (enabled) {
+          await controlsRef.current.play();
+        }
+      } catch (e) {
+        console.log('Failed to load background music', e);
+      }
+    };
+
+    setupAsync();
+
+    const onAppStateChange = async (nextState: AppStateStatus) => {
+      appStateRef.current = nextState;
+      if (nextState === 'active') {
+        if (enabled) {
+          await controlsRef.current?.play();
+        }
+      } else if (nextState.match(/inactive|background/)) {
+        await controlsRef.current?.pause();
+      }
+    };
+
+    const sub = AppState.addEventListener('change', onAppStateChange);
+
+    return () => {
+      isMounted = false;
+      sub.remove();
+      if (soundRef.current) {
+        soundRef.current.unloadAsync().catch(() => {});
+        soundRef.current = null;
+      }
+      controlsRef.current = null;
+    };
+  }, [source]);
+
+  useEffect(() => {
+    const applyEnabled = async () => {
+      try {
+        if (!controlsRef.current) return;
+        if (enabled) {
+          await controlsRef.current.play();
+        } else {
+          await controlsRef.current.pause();
+        }
+      } catch (e) {
+        console.log('Toggling music failed', e);
+      }
+    };
+    applyEnabled();
+  }, [enabled]);
+
+  return controlsRef;
 }

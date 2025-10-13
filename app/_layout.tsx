@@ -6,9 +6,10 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { View, StyleSheet, Text } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
-import { SettingsProvider } from "@/contexts/SettingsContext";
+import { SettingsProvider, useSettings } from "@/contexts/SettingsContext";
 import { AdBanner } from "@/components/AdBanner";
 import { trpc, trpcClient } from "@/lib/trpc";
+import { useBackgroundMusic } from "@/hooks/useBackgroundMusic";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync().catch((error) => {
@@ -29,6 +30,12 @@ function RootLayoutNav() {
       <Stack.Screen name="game-numbers" options={{ headerShown: false }} />
     </Stack>
   );
+}
+
+function BackgroundMusicBridge() {
+  const { musicEnabled, gameConfig } = useSettings();
+  useBackgroundMusic(gameConfig.mode === 'pi' ? 'pi' : gameConfig.mode, musicEnabled);
+  return null;
 }
 
 class ErrorBoundary extends Component<
@@ -79,6 +86,7 @@ export default function RootLayout() {
             <SafeAreaProvider>
               <GestureHandlerRootView style={styles.container}>
                 <View style={styles.container}>
+                  <BackgroundMusicBridge />
                   <RootLayoutNav />
                   <AdBanner />
                 </View>

@@ -10,15 +10,12 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useSettings } from '@/contexts/SettingsContext';
-import { useBackgroundMusic } from '@/hooks/useBackgroundMusic';
 import { AD_BANNER_HEIGHT } from '@/components/AdBanner';
 
 export default function HomeScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const { colors, bestScores, musicEnabled, adsRemoved, isLoading } = useSettings();
-  
-  useBackgroundMusic('pi', musicEnabled);
 
   if (isLoading) {
     return (
