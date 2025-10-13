@@ -321,10 +321,12 @@ export const [SettingsProvider, useSettings] = createContextHook(() => {
   }, [musicEnabled, hapticsEnabled]);
 
   const toggleMusic = useCallback(() => {
-    const newValue = !musicEnabled;
-    setMusicEnabled(newValue);
-    saveSettings(theme, newValue, hapticsEnabled);
-  }, [musicEnabled, theme, hapticsEnabled]);
+    setMusicEnabled(prev => {
+      const newValue = !prev;
+      saveSettings(theme, newValue, hapticsEnabled);
+      return newValue;
+    });
+  }, [theme, hapticsEnabled]);
 
   const toggleHaptics = useCallback(() => {
     const newValue = !hapticsEnabled;
@@ -338,19 +340,26 @@ export const [SettingsProvider, useSettings] = createContextHook(() => {
 
   const updateBestScore = useCallback(async (mode: GameMode | 'piFree', score: number) => {
     console.log('Updating best score:', mode, score);
-    setBestScores(prev => {
-      const newScores = { ...prev };
-      const currentScore = newScores[mode as keyof BestScores];
-      console.log('Current score:', currentScore, 'New score:', score);
-      if (score > currentScore) {
-        newScores[mode as keyof BestScores] = score;
-        console.log('New high score! Saving:', newScores);
-        AsyncStorage.setItem(BEST_SCORES_KEY, JSON.stringify(newScores)).catch(error => {
-          console.error('Failed to save best scores:', error);
-        });
-      }
-      return newScores;
+    const newScores = await new Promise<BestScores>((resolve) => {
+      setBestScores(prev => {
+        const updated = { ...prev };
+        const currentScore = updated[mode as keyof BestScores];
+        console.log('Current score:', currentScore, 'New score:', score);
+        if (score > currentScore) {
+          updated[mode as keyof BestScores] = score;
+          console.log('New high score! Saving:', updated);
+        }
+        resolve(updated);
+        return updated;
+      });
     });
+    
+    try {
+      await AsyncStorage.setItem(BEST_SCORES_KEY, JSON.stringify(newScores));
+      console.log('Best scores saved successfully');
+    } catch (error) {
+      console.error('Failed to save best scores:', error);
+    }
   }, []);
 
   const resetBestScores = useCallback(async () => {

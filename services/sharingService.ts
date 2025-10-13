@@ -25,12 +25,17 @@ export async function shareChallenge(data: ChallengeData): Promise<void> {
             title: 'Sequence Master Utfordring',
             text: message,
           });
+          console.log('Share successful');
         } catch (shareError: any) {
-          if (shareError.name === 'NotAllowedError' || shareError.name === 'AbortError') {
-            console.log('Share cancelled or not allowed, falling back to clipboard');
+          if (shareError.name === 'NotAllowedError') {
+            console.log('Share not allowed, falling back to clipboard');
+            await navigator.clipboard.writeText(message);
+            Alert.alert('Kopiert!', 'Utfordringen er kopiert til utklippstavlen');
+          } else if (shareError.name === 'AbortError') {
+            console.log('Share cancelled by user');
+          } else {
+            throw shareError;
           }
-          await navigator.clipboard.writeText(message);
-          Alert.alert('Kopiert!', 'Utfordringen er kopiert til utklippstavlen');
         }
       } else {
         await navigator.clipboard.writeText(message);
@@ -69,12 +74,17 @@ export async function shareScore(data: ChallengeData): Promise<void> {
             title: 'Sequence Master Score',
             text: message,
           });
+          console.log('Share successful');
         } catch (shareError: any) {
-          if (shareError.name === 'NotAllowedError' || shareError.name === 'AbortError') {
-            console.log('Share cancelled or not allowed, falling back to clipboard');
+          if (shareError.name === 'NotAllowedError') {
+            console.log('Share not allowed, falling back to clipboard');
+            await navigator.clipboard.writeText(message);
+            Alert.alert('Kopiert!', 'Scoren er kopiert til utklippstavlen');
+          } else if (shareError.name === 'AbortError') {
+            console.log('Share cancelled by user');
+          } else {
+            throw shareError;
           }
-          await navigator.clipboard.writeText(message);
-          Alert.alert('Kopiert!', 'Scoren er kopiert til utklippstavlen');
         }
       } else {
         await navigator.clipboard.writeText(message);
