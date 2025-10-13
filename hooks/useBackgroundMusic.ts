@@ -19,6 +19,18 @@ const THEME_TRACKS: Record<MusicTheme, string> = {
   numbers: 'https://cdn.pixabay.com/download/audio/2022/03/15/audio_6e6aab4b4e.mp3?filename=calm-ambient-110058.mp3',
 };
 
+let latestControls: BackgroundMusicControls | null = null;
+
+export function requestBackgroundMusicPlay() {
+  if (latestControls) {
+    latestControls.play().catch((err: any) => {
+      console.log('Manual music start failed', err?.message ?? err);
+    });
+  } else {
+    console.log('No background music controls available to start');
+  }
+}
+
 export function useBackgroundMusic(theme: MusicTheme, enabled: boolean = true): React.MutableRefObject<BackgroundMusicControls | null> {
   const soundRef = useRef<Audio.Sound | null>(null);
   const controlsRef = useRef<BackgroundMusicControls | null>(null);
@@ -64,6 +76,7 @@ export function useBackgroundMusic(theme: MusicTheme, enabled: boolean = true): 
           play: async () => {
             try {
               if (soundRef.current) {
+                await Audio.setIsEnabledAsync(true);
                 await soundRef.current.playAsync();
               }
             } catch (err: any) {
@@ -93,6 +106,7 @@ export function useBackgroundMusic(theme: MusicTheme, enabled: boolean = true): 
             }
           },
         };
+        latestControls = controlsRef.current;
 
         if (enabled) {
           await controlsRef.current.play();
@@ -125,8 +139,9 @@ export function useBackgroundMusic(theme: MusicTheme, enabled: boolean = true): 
         soundRef.current = null;
       }
       controlsRef.current = null;
+      latestControls = null;
     };
-  }, [source]);
+  }, [source, enabled]);
 
   useEffect(() => {
     const applyEnabled = async () => {

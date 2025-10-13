@@ -11,6 +11,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useSettings } from '@/contexts/SettingsContext';
 import { AD_BANNER_HEIGHT } from '@/components/AdBanner';
+import { requestBackgroundMusicPlay } from '@/hooks/useBackgroundMusic';
 
 export default function HomeScreen() {
   const insets = useSafeAreaInsets();
@@ -54,18 +55,24 @@ export default function HomeScreen() {
           <View style={styles.mainButtons}>
             <TouchableOpacity
               style={[styles.mainButton, { backgroundColor: colors.button.primary }]}
-              onPress={() => router.push('/mode-select')}
+              onPress={() => {
+                requestBackgroundMusicPlay();
+                router.push('/mode-select');
+              }}
               activeOpacity={0.8}
             >
-              <Text style={[styles.mainButtonText, { color: colors.button.primaryText }]}>Start</Text>
+              <Text testID="start-button-text" style={[styles.mainButtonText, { color: colors.button.primaryText }]}>Start</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
               style={[styles.mainButton, { backgroundColor: colors.button.primary }]}
-              onPress={() => router.push('/settings')}
+              onPress={() => {
+                requestBackgroundMusicPlay();
+                router.push('/settings');
+              }}
               activeOpacity={0.8}
             >
-              <Text style={[styles.mainButtonText, { color: colors.button.primaryText }]}>Innstillinger</Text>
+              <Text testID="settings-button-text" style={[styles.mainButtonText, { color: colors.button.primaryText }]}>Innstillinger</Text>
             </TouchableOpacity>
           </View>
 
