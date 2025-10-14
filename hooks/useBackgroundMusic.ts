@@ -11,9 +11,9 @@ interface BackgroundMusicControls {
 }
 
 const THEME_TRACKS: Record<MusicTheme, string> = {
-  pi: 'https://cdn.pixabay.com/audio/2022/03/15/audio_6e6aab4b4e.mp3',
-  colors: 'https://cdn.pixabay.com/audio/2022/03/15/audio_6e6aab4b4e.mp3',
-  numbers: 'https://cdn.pixabay.com/audio/2022/03/15/audio_6e6aab4b4e.mp3',
+  pi: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
+  colors: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3',
+  numbers: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3',
 };
 
 const WEB_FALLBACK: string = 'https://cdn.jsdelivr.net/gh/anars/blank-audio/1-minute-of-silence.mp3';
