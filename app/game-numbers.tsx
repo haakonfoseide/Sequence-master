@@ -226,6 +226,9 @@ export default function NumbersGameScreen() {
   }, [router]);
 
   const renderGrid = useCallback(() => {
+    const cellSize = getGridCellSize(gridSize);
+    const fontSize = gridSize >= 5 ? 18 : 24;
+    
     return (
       <View style={styles.grid}>
         {Array.from({ length: gridSize }).map((_, rowIndex) => (
@@ -241,6 +244,8 @@ export default function NumbersGameScreen() {
                   style={[
                     styles.gridCell,
                     { 
+                      width: cellSize,
+                      height: cellSize,
                       backgroundColor: isHighlighted ? colors.button.primary : 'rgba(255, 255, 255, 0.2)',
                       opacity: gamePhase === 'showing' && !isHighlighted ? 0.5 : 1,
                       transform: [{ scale: isHighlighted ? 1.1 : 1 }],
@@ -253,7 +258,10 @@ export default function NumbersGameScreen() {
                 >
                   <Text style={[
                     styles.gridCellText, 
-                    { color: isHighlighted ? colors.button.primaryText : colors.text.primary }
+                    { 
+                      fontSize,
+                      color: isHighlighted ? colors.button.primaryText : colors.text.primary 
+                    }
                   ]}>
                     {cellIndex + 1}
                   </Text>
@@ -359,9 +367,16 @@ export default function NumbersGameScreen() {
   );
 }
 
-const { width } = Dimensions.get('window');
-const gridPadding = 48;
-const gridGap = 12;
+const { width, height } = Dimensions.get('window');
+const screenPadding = 48;
+const gridGap = 8;
+
+const getGridCellSize = (gridSize: number) => {
+  const availableSpace = Math.min(width, height * 0.6);
+  const totalGaps = (gridSize - 1) * gridGap;
+  const cellSize = (availableSpace - screenPadding - totalGaps) / gridSize;
+  return Math.floor(cellSize);
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -407,14 +422,11 @@ const styles = StyleSheet.create({
     gap: gridGap,
   },
   gridCell: {
-    width: (width - gridPadding - gridGap * 4) / 5,
-    height: (width - gridPadding - gridGap * 4) / 5,
     borderRadius: 12,
     justifyContent: 'center',
     alignItems: 'center',
   },
   gridCellText: {
-    fontSize: 24,
     fontWeight: '700' as const,
   },
   gridCellSelected: {

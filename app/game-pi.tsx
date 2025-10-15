@@ -55,6 +55,14 @@ export default function PiGameScreen() {
     let index = 0;
     const sequence = PI_DIGITS.substring(0, currentLevel);
     
+    const speedConfig = {
+      easy: 1000,
+      normal: 800,
+      hard: 600,
+    };
+    
+    const showSpeed = speedConfig[gameConfig.difficulty];
+    
     const showNextDigit = () => {
       if (index < sequence.length) {
         setDisplayedDigit(sequence[index]);
@@ -74,18 +82,18 @@ export default function PiGameScreen() {
         ]).start();
 
         index++;
-        const t = setTimeout(showNextDigit, 800);
+        const t = setTimeout(showNextDigit, showSpeed);
         timeoutsRef.current.push(t);
       } else {
         const t = setTimeout(() => {
           setGamePhase('input');
-        }, 800);
+        }, showSpeed);
         timeoutsRef.current.push(t);
       }
     };
 
     showNextDigit();
-  }, [currentLevel, digitScale, clearAllTimeouts]);
+  }, [currentLevel, digitScale, clearAllTimeouts, gameConfig.difficulty]);
 
   const startGame = useCallback(() => {
     console.log('Starting game at level:', currentLevel, 'mode:', piMode);
