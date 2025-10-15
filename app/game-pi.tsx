@@ -1,6 +1,6 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
-import { Trophy, RotateCcw, ArrowLeft } from 'lucide-react-native';
+import { Trophy, RotateCcw, ArrowLeft, BookOpen } from 'lucide-react-native';
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
   StyleSheet,
@@ -502,6 +502,14 @@ export default function PiGameScreen() {
                         }
                       </Text>
                     </View>
+                    {piMode === 'free' && (
+                      <View style={styles.comparisonBox}>
+                        <Text style={[styles.comparisonLabel, { color: colors.text.secondary }]}>Neste 10 sifrene:</Text>
+                        <Text style={[styles.comparisonText, { color: colors.text.primary }]}>
+                          {PI_DIGITS.substring(userInput.length - 1, userInput.length - 1 + 10)}
+                        </Text>
+                      </View>
+                    )}
                   </View>
 
                   {isNewRecord && (
@@ -511,14 +519,26 @@ export default function PiGameScreen() {
                     </View>
                   )}
 
-                  <TouchableOpacity
-                    style={[styles.restartButton, { backgroundColor: colors.button.primary }]}
-                    onPress={restartGame}
-                    activeOpacity={0.8}
-                  >
-                    <RotateCcw color={colors.button.primaryText} size={20} />
-                    <Text style={[styles.restartButtonText, { color: colors.button.primaryText }]}>Prøv Igjen</Text>
-                  </TouchableOpacity>
+                  <View style={styles.buttonContainer}>
+                    <TouchableOpacity
+                      style={[styles.restartButton, { backgroundColor: colors.button.primary }]}
+                      onPress={restartGame}
+                      activeOpacity={0.8}
+                    >
+                      <RotateCcw color={colors.button.primaryText} size={20} />
+                      <Text style={[styles.restartButtonText, { color: colors.button.primaryText }]}>Prøv Igjen</Text>
+                    </TouchableOpacity>
+                    {piMode === 'free' && (
+                      <TouchableOpacity
+                        style={[styles.practiceButton, { backgroundColor: colors.button.primary }]}
+                        onPress={() => router.push('/pi-digits')}
+                        activeOpacity={0.8}
+                      >
+                        <BookOpen color={colors.button.primaryText} size={20} />
+                        <Text style={[styles.restartButtonText, { color: colors.button.primaryText }]}>Øv mer</Text>
+                      </TouchableOpacity>
+                    )}
+                  </View>
                 </>
               )}
             </View>
@@ -725,7 +745,21 @@ const styles = StyleSheet.create({
     fontWeight: '700' as const,
     textAlign: 'center',
   },
+  buttonContainer: {
+    flexDirection: 'row',
+    gap: 12,
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+  },
   restartButton: {
+    borderRadius: 16,
+    paddingVertical: 18,
+    paddingHorizontal: 32,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  practiceButton: {
     borderRadius: 16,
     paddingVertical: 18,
     paddingHorizontal: 32,
