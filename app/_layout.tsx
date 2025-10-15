@@ -7,7 +7,6 @@ import { View, StyleSheet, Text } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
 import { SettingsProvider, useSettings } from "@/contexts/SettingsContext";
-import { AdBanner } from "@/components/AdBanner";
 import { trpc, trpcClient } from "@/lib/trpc";
 import { useBackgroundMusic } from "@/hooks/useBackgroundMusic";
 
@@ -88,7 +87,6 @@ export default function RootLayout() {
                 <View style={styles.container}>
                   <BackgroundMusicBridge />
                   <RootLayoutNav />
-                  <AdBanner />
                 </View>
               </GestureHandlerRootView>
             </SafeAreaProvider>
