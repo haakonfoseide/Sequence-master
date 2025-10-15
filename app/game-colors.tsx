@@ -72,11 +72,13 @@ export default function ColorsGameScreen() {
         setTimeout(() => {
           setHighlightedCell(null);
           index++;
-          setTimeout(showNextCell, speed.pause);
+          if (index < sequence.length) {
+            setTimeout(showNextCell, speed.pause);
+          } else {
+            setGamePhase('input');
+            setShowingIndex(0);
+          }
         }, speed.show);
-      } else {
-        setGamePhase('input');
-        setShowingIndex(0);
       }
     };
 

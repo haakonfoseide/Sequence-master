@@ -500,16 +500,13 @@ export default function PiGameScreen() {
                           ? PI_DIGITS.substring(0, userInput.length)
                           : PI_DIGITS.substring(0, currentLevel)
                         }
+                        {piMode === 'free' && (
+                          <Text style={[styles.comparisonText, { color: '#FCD34D' }]}>
+                            {PI_DIGITS.substring(userInput.length, userInput.length + 10)}
+                          </Text>
+                        )}
                       </Text>
                     </View>
-                    {piMode === 'free' && (
-                      <View style={styles.comparisonBox}>
-                        <Text style={[styles.comparisonLabel, { color: colors.text.secondary }]}>Neste 10 sifrene:</Text>
-                        <Text style={[styles.comparisonText, { color: colors.text.primary }]}>
-                          {PI_DIGITS.substring(userInput.length - 1, userInput.length - 1 + 10)}
-                        </Text>
-                      </View>
-                    )}
                   </View>
 
                   {isNewRecord && (
