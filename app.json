@@ -1,8 +1,8 @@
 {
   "expo": {
-    "name": "Sequence master",
+    "name": "Sequence Master Challenge",
     "slug": "sequence-master",
-    "version": "1.0.5",
+    "version": "1.0.6",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "myapp",
