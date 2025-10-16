@@ -11,14 +11,19 @@ interface BackgroundMusicControls {
 }
 
 const THEME_TRACKS: Record<MusicTheme, string> = {
-  pi: 'https://cdn.pixabay.com/audio/2022/05/27/audio_1808fbf07a.mp3',
-  colors: 'https://cdn.pixabay.com/audio/2022/03/15/audio_4aba14190e.mp3',
-  numbers: 'https://cdn.pixabay.com/audio/2023/10/06/audio_c8c38d96e3.mp3',
+  pi: 'https://cdn.pixabay.com/audio/2024/08/07/audio_ab5df9ca5d.mp3',
+  colors: 'https://cdn.pixabay.com/audio/2024/08/07/audio_ab5df9ca5d.mp3',
+  numbers: 'https://cdn.pixabay.com/audio/2024/08/07/audio_ab5df9ca5d.mp3',
 };
 
 const WEB_FALLBACK: string = 'https://cdn.jsdelivr.net/gh/anars/blank-audio/1-minute-of-silence.mp3';
 
 let latestControls: BackgroundMusicControls | null = null;
+let globalSoundRef: ExpoAudio.Sound | null = null;
+let globalHtmlAudioRef: any | null = null;
+let globalCurrentSource: string | null = null;
+let isGlobalMusicInitialized = false;
+let activeListenerCount = 0;
 
 export function requestBackgroundMusicPlay() {
   if (latestControls) {
@@ -42,9 +47,68 @@ export function useBackgroundMusic(theme: MusicTheme, enabled: boolean = true): 
 
   useEffect(() => {
     let isMounted = true;
+    activeListenerCount++;
+    console.log('[Music] Active listener count:', activeListenerCount);
 
     const setupAsync = async () => {
-      console.log('[Music] setup start. platform=', Platform.OS, 'enabled=', enabled, 'src=', source);
+      console.log('[Music] setup start. platform=', Platform.OS, 'enabled=', enabled, 'src=', source, 'initialized=', isGlobalMusicInitialized);
+      
+      if (isGlobalMusicInitialized && globalCurrentSource === source) {
+        console.log('[Music] Using existing global music instance');
+        soundRef.current = globalSoundRef;
+        htmlAudioRef.current = globalHtmlAudioRef;
+        
+        controlsRef.current = {
+          play: async () => {
+            try {
+              if (Platform.OS === 'web') {
+                const el = globalHtmlAudioRef;
+                if (!el) return;
+                await el.play();
+                console.log('Music playing (web audio element)');
+              } else {
+                await ExpoAudio.setIsEnabledAsync(true);
+                const s = globalSoundRef;
+                if (!s) return;
+                const status = await s.getStatusAsync();
+                if (status.isLoaded && !status.isPlaying) {
+                  await s.playAsync();
+                  console.log('Music started playing (native)');
+                }
+              }
+            } catch (err: any) {
+              console.log('Failed to play music:', err?.message ?? err);
+            }
+          },
+          pause: async () => {
+            try {
+              if (Platform.OS === 'web') {
+                globalHtmlAudioRef?.pause();
+              } else if (globalSoundRef) {
+                await globalSoundRef.pauseAsync();
+              }
+            } catch (err) {
+              console.log('Failed to pause music', err);
+            }
+          },
+          setVolume: async (v: number) => {
+            try {
+              if (Platform.OS === 'web') {
+                if (globalHtmlAudioRef) {
+                  globalHtmlAudioRef.volume = Math.min(1, Math.max(0, v));
+                }
+              } else if (globalSoundRef) {
+                await globalSoundRef.setVolumeAsync(Math.min(1, Math.max(0, v)));
+              }
+            } catch (err) {
+              console.log('Failed to set volume', err);
+            }
+          },
+        };
+        latestControls = controlsRef.current;
+        return;
+      }
+
       try {
         if (Platform.OS !== 'web') {
           await ExpoAudio.setAudioModeAsync({
@@ -63,29 +127,34 @@ export function useBackgroundMusic(theme: MusicTheme, enabled: boolean = true): 
 
       try {
         if (Platform.OS === 'web') {
-          if (htmlAudioRef.current) {
-            try { htmlAudioRef.current.pause(); } catch {}
-            htmlAudioRef.current = null;
+          if (globalHtmlAudioRef && globalCurrentSource !== source) {
+            try { globalHtmlAudioRef.pause(); } catch {}
+            globalHtmlAudioRef = null;
           }
-          const audioEl = (typeof window !== 'undefined' ? new (window as any).Audio(source) : null) as unknown as WebAudioEl;
-          audioEl.loop = true;
-          audioEl.preload = 'auto';
-          audioEl.volume = 0.18;
-          htmlAudioRef.current = audioEl;
+          
+          if (!globalHtmlAudioRef) {
+            const audioEl = (typeof window !== 'undefined' ? new (window as any).Audio(source) : null) as unknown as WebAudioEl;
+            audioEl.loop = true;
+            audioEl.preload = 'auto';
+            audioEl.volume = 0.18;
+            globalHtmlAudioRef = audioEl;
+            htmlAudioRef.current = audioEl;
+            globalCurrentSource = source;
+          }
 
           controlsRef.current = {
             play: async () => {
               try {
-                const el = htmlAudioRef.current;
+                const el = globalHtmlAudioRef;
                 if (!el) return;
                 await el.play();
                 console.log('Music playing (web audio element)');
               } catch (err: any) {
                 console.log('Failed to play via HTMLAudioElement. Retrying with fallback...', err?.message ?? err);
                 try {
-                  if (htmlAudioRef.current) {
-                    htmlAudioRef.current.src = WEB_FALLBACK;
-                    await htmlAudioRef.current.play();
+                  if (globalHtmlAudioRef) {
+                    globalHtmlAudioRef.src = WEB_FALLBACK;
+                    await globalHtmlAudioRef.play();
                     console.log('Fallback web audio started');
                   }
                 } catch (err2) {
@@ -95,15 +164,15 @@ export function useBackgroundMusic(theme: MusicTheme, enabled: boolean = true): 
             },
             pause: async () => {
               try {
-                htmlAudioRef.current?.pause();
+                globalHtmlAudioRef?.pause();
               } catch (err) {
                 console.log('Pause failed (web)', err);
               }
             },
             setVolume: async (v: number) => {
               try {
-                if (htmlAudioRef.current) {
-                  htmlAudioRef.current.volume = Math.min(1, Math.max(0, v));
+                if (globalHtmlAudioRef) {
+                  globalHtmlAudioRef.volume = Math.min(1, Math.max(0, v));
                 }
               } catch (err) {
                 console.log('Set volume failed (web)', err);
@@ -111,31 +180,36 @@ export function useBackgroundMusic(theme: MusicTheme, enabled: boolean = true): 
             },
           };
           latestControls = controlsRef.current;
+          isGlobalMusicInitialized = true;
         } else {
-          if (soundRef.current) {
-            await soundRef.current.unloadAsync().catch(() => {});
-            soundRef.current = null;
+          if (globalSoundRef && globalCurrentSource !== source) {
+            await globalSoundRef.unloadAsync().catch(() => {});
+            globalSoundRef = null;
           }
 
-          const { sound } = await ExpoAudio.Sound.createAsync(
-            { uri: source },
-            { isLooping: true, volume: 0.18, shouldPlay: false }
-          );
-          if (!isMounted) {
-            await sound.unloadAsync().catch(() => {});
-            return;
+          if (!globalSoundRef) {
+            const { sound } = await ExpoAudio.Sound.createAsync(
+              { uri: source },
+              { isLooping: true, volume: 0.18, shouldPlay: false }
+            );
+            if (!isMounted) {
+              await sound.unloadAsync().catch(() => {});
+              return;
+            }
+            sound.setOnPlaybackStatusUpdate((status) => {
+              // @ts-expect-error narrowing for logs only
+              console.log('[Music status]', status?.isLoaded, status?.isPlaying, status?.positionMillis);
+            });
+            globalSoundRef = sound;
+            soundRef.current = sound;
+            globalCurrentSource = source;
           }
-          sound.setOnPlaybackStatusUpdate((status) => {
-            // @ts-expect-error narrowing for logs only
-            console.log('[Music status]', status?.isLoaded, status?.isPlaying, status?.positionMillis);
-          });
-          soundRef.current = sound;
 
           controlsRef.current = {
             play: async () => {
               try {
                 await ExpoAudio.setIsEnabledAsync(true);
-                const s = soundRef.current;
+                const s = globalSoundRef;
                 if (!s) return;
                 const status = await s.getStatusAsync();
                 if (status.isLoaded && !status.isPlaying) {
@@ -148,8 +222,8 @@ export function useBackgroundMusic(theme: MusicTheme, enabled: boolean = true): 
             },
             pause: async () => {
               try {
-                if (soundRef.current) {
-                  await soundRef.current.pauseAsync();
+                if (globalSoundRef) {
+                  await globalSoundRef.pauseAsync();
                 }
               } catch (err) {
                 console.log('Failed to pause background music', err);
@@ -157,8 +231,8 @@ export function useBackgroundMusic(theme: MusicTheme, enabled: boolean = true): 
             },
             setVolume: async (v: number) => {
               try {
-                if (soundRef.current) {
-                  await soundRef.current.setVolumeAsync(Math.min(1, Math.max(0, v)));
+                if (globalSoundRef) {
+                  await globalSoundRef.setVolumeAsync(Math.min(1, Math.max(0, v)));
                 }
               } catch (err) {
                 console.log('Failed to set volume', err);
@@ -166,6 +240,7 @@ export function useBackgroundMusic(theme: MusicTheme, enabled: boolean = true): 
             },
           };
           latestControls = controlsRef.current;
+          isGlobalMusicInitialized = true;
         }
       } catch (e) {
         console.log('Failed to load background music', e);
@@ -189,19 +264,28 @@ export function useBackgroundMusic(theme: MusicTheme, enabled: boolean = true): 
 
     return () => {
       isMounted = false;
+      activeListenerCount--;
+      console.log('[Music] Active listener count on cleanup:', activeListenerCount);
       sub.remove();
-      try {
-        if (Platform.OS === 'web') {
-          if (htmlAudioRef.current) {
-            htmlAudioRef.current.pause();
-            htmlAudioRef.current.src = '';
-            htmlAudioRef.current = null;
+      
+      if (activeListenerCount === 0) {
+        console.log('[Music] Last listener removed, cleaning up global music');
+        try {
+          if (Platform.OS === 'web') {
+            if (globalHtmlAudioRef) {
+              globalHtmlAudioRef.pause();
+              globalHtmlAudioRef.src = '';
+              globalHtmlAudioRef = null;
+            }
+          } else if (globalSoundRef) {
+            globalSoundRef.unloadAsync().catch(() => {});
+            globalSoundRef = null;
           }
-        } else if (soundRef.current) {
-          soundRef.current.unloadAsync().catch(() => {});
-          soundRef.current = null;
-        }
-      } catch {}
+        } catch {}
+        globalCurrentSource = null;
+        isGlobalMusicInitialized = false;
+      }
+      
       controlsRef.current = null;
       latestControls = null;
     };
