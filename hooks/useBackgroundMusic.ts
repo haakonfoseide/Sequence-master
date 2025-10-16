@@ -11,9 +11,9 @@ interface BackgroundMusicControls {
 }
 
 const THEME_TRACKS: Record<MusicTheme, string> = {
-  pi: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
-  colors: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3',
-  numbers: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3',
+  pi: 'https://cdn.pixabay.com/audio/2022/05/27/audio_1808fbf07a.mp3',
+  colors: 'https://cdn.pixabay.com/audio/2022/03/15/audio_4aba14190e.mp3',
+  numbers: 'https://cdn.pixabay.com/audio/2023/10/06/audio_c8c38d96e3.mp3',
 };
 
 const WEB_FALLBACK: string = 'https://cdn.jsdelivr.net/gh/anars/blank-audio/1-minute-of-silence.mp3';
@@ -166,10 +166,6 @@ export function useBackgroundMusic(theme: MusicTheme, enabled: boolean = true): 
             },
           };
           latestControls = controlsRef.current;
-
-          if (enabled) {
-            await controlsRef.current.play();
-          }
         }
       } catch (e) {
         console.log('Failed to load background music', e);
