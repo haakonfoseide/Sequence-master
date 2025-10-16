@@ -11,9 +11,9 @@ interface BackgroundMusicControls {
 }
 
 const THEME_TRACKS: Record<MusicTheme, string> = {
-  pi: 'https://cdn.pixabay.com/audio/2024/08/07/audio_ab5df9ca5d.mp3',
-  colors: 'https://cdn.pixabay.com/audio/2024/08/07/audio_ab5df9ca5d.mp3',
-  numbers: 'https://cdn.pixabay.com/audio/2024/08/07/audio_ab5df9ca5d.mp3',
+  pi: 'https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3',
+  colors: 'https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3',
+  numbers: 'https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3',
 };
 
 const WEB_FALLBACK: string = 'https://cdn.jsdelivr.net/gh/anars/blank-audio/1-minute-of-silence.mp3';
