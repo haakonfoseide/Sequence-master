@@ -56,7 +56,9 @@ export default function HomeScreen() {
             <TouchableOpacity
               style={[styles.mainButton, { backgroundColor: colors.button.primary }]}
               onPress={() => {
-                requestBackgroundMusicPlay();
+                if (musicEnabled) {
+                  requestBackgroundMusicPlay();
+                }
                 router.push('/mode-select');
               }}
               activeOpacity={0.8}
@@ -67,7 +69,9 @@ export default function HomeScreen() {
             <TouchableOpacity
               style={[styles.mainButton, { backgroundColor: colors.button.primary }]}
               onPress={() => {
-                requestBackgroundMusicPlay();
+                if (musicEnabled) {
+                  requestBackgroundMusicPlay();
+                }
                 router.push('/settings');
               }}
               activeOpacity={0.8}
