@@ -252,11 +252,15 @@ export function useBackgroundMusic(theme: MusicTheme, enabled: boolean = true): 
     const onAppStateChange = async (nextState: AppStateStatus) => {
       appStateRef.current = nextState;
       if (nextState === 'active') {
-        if (enabled) {
-          await controlsRef.current?.play();
+        if (enabled && controlsRef.current) {
+          console.log('App became active, resuming music (if enabled)');
+          await controlsRef.current.play();
         }
       } else if (nextState.match(/inactive|background/)) {
-        await controlsRef.current?.pause();
+        if (controlsRef.current) {
+          console.log('App became inactive, pausing music');
+          await controlsRef.current.pause();
+        }
       }
     };
 
@@ -295,13 +299,16 @@ export function useBackgroundMusic(theme: MusicTheme, enabled: boolean = true): 
     const applyEnabled = async () => {
       try {
         if (!controlsRef.current) return;
+        
         if (enabled) {
           if (Platform.OS === 'web' && !hasUserInteracted) {
             console.log('Waiting for user interaction to start music on web');
             return;
           }
+          console.log('Music enabled, starting playback...');
           await controlsRef.current.play();
         } else {
+          console.log('Music disabled by user, pausing...');
           await controlsRef.current.pause();
         }
       } catch (e) {
@@ -316,9 +323,12 @@ export function useBackgroundMusic(theme: MusicTheme, enabled: boolean = true): 
       const handleInteraction = () => {
         setHasUserInteracted(true);
         if (enabled && controlsRef.current) {
+          console.log('User interacted on web, starting music...');
           controlsRef.current.play().catch(err => {
             console.log('Failed to start music after interaction:', err);
           });
+        } else {
+          console.log('User interacted on web but music is disabled');
         }
       };
 
