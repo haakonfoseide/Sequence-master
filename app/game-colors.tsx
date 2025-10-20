@@ -16,7 +16,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useSettings } from '@/contexts/SettingsContext';
 import { GRID_COLORS } from '@/constants/gridColors';
-import { useBackgroundMusic } from '@/hooks/useBackgroundMusic';
+
 
 type GamePhase = 'showing' | 'input' | 'result';
 
@@ -25,7 +25,7 @@ export default function ColorsGameScreen() {
   const router = useRouter();
   const { colors, gameConfig, updateBestScore, bestScores, hapticsEnabled, musicEnabled } = useSettings();
   
-  useBackgroundMusic('colors', musicEnabled);
+
   const [gamePhase, setGamePhase] = useState<GamePhase>('showing');
   const [currentLevel, setCurrentLevel] = useState<number>(1);
   const [sequence, setSequence] = useState<number[]>([]);

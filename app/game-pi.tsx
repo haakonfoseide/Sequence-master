@@ -16,7 +16,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useSettings } from '@/contexts/SettingsContext';
 import { PI_DIGITS } from '@/constants/pi';
-import { useBackgroundMusic } from '@/hooks/useBackgroundMusic';
+
 import { AD_BANNER_HEIGHT } from '@/components/AdBanner';
 
 type GamePhase = 'showing' | 'input' | 'result';
@@ -28,7 +28,7 @@ export default function PiGameScreen() {
   const router = useRouter();
   const { colors, gameConfig, updateBestScore, bestScores, musicEnabled, adsRemoved } = useSettings();
   
-  useBackgroundMusic('pi', musicEnabled);
+
   const [gamePhase, setGamePhase] = useState<GamePhase>('showing');
   const [currentLevel, setCurrentLevel] = useState<number>(1);
   const [displayedDigit, setDisplayedDigit] = useState<string>('');
