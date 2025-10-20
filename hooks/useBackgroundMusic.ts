@@ -247,7 +247,16 @@ export function useBackgroundMusic(theme: MusicTheme, enabled: boolean = true): 
       }
     };
 
-    setupAsync();
+    setupAsync().then(() => {
+      if (enabled && controlsRef.current) {
+        console.log('[Music] Starting music on mount (enabled=true)');
+        controlsRef.current.play().catch(err => {
+          console.log('Failed to start music on mount:', err);
+        });
+      } else {
+        console.log('[Music] Music disabled on mount, not starting');
+      }
+    });
 
     const onAppStateChange = async (nextState: AppStateStatus) => {
       appStateRef.current = nextState;
