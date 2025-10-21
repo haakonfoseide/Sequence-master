@@ -38,7 +38,7 @@
       [
         "expo-router",
         {
-          "origin": "https://rork.com/"
+          "origin": "https://rork.com"
         }
       ],
       [
