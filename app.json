@@ -22,13 +22,21 @@
     },
     "android": {
       "package": "app.sequence-master",
-      "permissions": ["RECORD_AUDIO", "VIBRATE"],
+      "permissions": [
+        "RECORD_AUDIO",
+        "VIBRATE"
+      ],
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       }
     },
-    "web": { "favicon": "./assets/images/favicon.png" },
-    "plugins": ["expo-router", "expo-av"]
+    "web": {
+      "favicon": "./assets/images/favicon.png"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-av"
+    ]
   }
 }
