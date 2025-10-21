@@ -32,8 +32,8 @@ function RootLayoutNav() {
 }
 
 function BackgroundMusicBridge() {
-  const { musicEnabled, gameConfig, isLoading } = useSettings();
-  useBackgroundMusic(gameConfig.mode === 'pi' ? 'pi' : gameConfig.mode, !isLoading && musicEnabled);
+  const { musicEnabled, gameConfig } = useSettings();
+  useBackgroundMusic(gameConfig.mode === 'pi' ? 'pi' : gameConfig.mode, musicEnabled);
   return null;
 }
 
