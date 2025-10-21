@@ -17,8 +17,6 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useSettings } from '@/contexts/SettingsContext';
 import { PI_DIGITS } from '@/constants/pi';
 
-import { AD_BANNER_HEIGHT } from '@/components/AdBanner';
-
 type GamePhase = 'showing' | 'input' | 'result';
 
 type TimeoutRef = ReturnType<typeof setTimeout> | null;
@@ -26,7 +24,7 @@ type TimeoutRef = ReturnType<typeof setTimeout> | null;
 export default function PiGameScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
-  const { colors, gameConfig, updateBestScore, bestScores, musicEnabled, adsRemoved } = useSettings();
+  const { colors, gameConfig, updateBestScore, bestScores } = useSettings();
   
 
   const [gamePhase, setGamePhase] = useState<GamePhase>('showing');
@@ -309,14 +307,13 @@ export default function PiGameScreen() {
     );
   }, [colors.text.primary, handleBackspace, handleNumberPress]);
 
-  const adBannerSpace = adsRemoved ? 0 : AD_BANNER_HEIGHT;
 
   return (
     <LinearGradient
       colors={[colors.background.start, colors.background.end]}
       style={styles.container}
     >
-      <View style={[styles.safeArea, { paddingTop: insets.top + 20, paddingBottom: insets.bottom + adBannerSpace }]}>
+      <View style={[styles.safeArea, { paddingTop: insets.top + 20, paddingBottom: insets.bottom }]}>
         {gamePhase === 'showing' && (
           <View style={styles.gameScreen}>
             <View style={styles.levelHeader}>

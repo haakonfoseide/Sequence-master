@@ -17,14 +17,18 @@
       "supportsTablet": true,
       "bundleIdentifier": "app.sequence-master",
       "infoPlist": {
-        "NSMicrophoneUsageDescription": "Allow $(PRODUCT_NAME) to access your microphone"
+        "NSMicrophoneUsageDescription": "Allow $(PRODUCT_NAME) to access your microphone",
+        "UIBackgroundModes": [
+          "audio"
+        ]
       }
     },
     "android": {
       "package": "app.sequence-master",
       "permissions": [
         "RECORD_AUDIO",
-        "VIBRATE"
+        "VIBRATE",
+        "android.permission.VIBRATE"
       ],
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
@@ -36,7 +40,12 @@
     },
     "plugins": [
       "expo-router",
-      "expo-av"
+      [
+        "expo-av",
+        {
+          "microphonePermission": "Allow $(PRODUCT_NAME) to access your microphone"
+        }
+      ]
     ]
   }
 }

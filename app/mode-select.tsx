@@ -12,12 +12,11 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useSettings, GameMode, Difficulty, GridSize, PiMode } from '@/contexts/SettingsContext';
-import { AD_BANNER_HEIGHT } from '@/components/AdBanner';
 
 export default function ModeSelectScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
-  const { colors, gameConfig, updateGameConfig, adsRemoved } = useSettings();
+  const { colors, gameConfig, updateGameConfig } = useSettings();
   const [selectedMode, setSelectedMode] = useState<GameMode>(gameConfig.mode);
   const [piMode, setPiMode] = useState<PiMode>(gameConfig.piMode || 'sequence');
   const [difficulty, setDifficulty] = useState<Difficulty>(gameConfig.difficulty);
@@ -53,14 +52,13 @@ export default function ModeSelectScreen() {
     }
   };
 
-  const adBannerSpace = adsRemoved ? 0 : AD_BANNER_HEIGHT;
 
   return (
     <LinearGradient
       colors={[colors.background.start, colors.background.end]}
       style={styles.container}
     >
-      <View style={[styles.safeArea, { paddingTop: insets.top + 20, paddingBottom: insets.bottom + adBannerSpace + 20 }]}>
+      <View style={[styles.safeArea, { paddingTop: insets.top + 20, paddingBottom: insets.bottom + 20 }]}>
         <View style={styles.header}>
           <TouchableOpacity
             style={styles.backButton}

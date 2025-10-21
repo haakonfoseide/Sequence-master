@@ -10,13 +10,12 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useSettings } from '@/contexts/SettingsContext';
-import { AD_BANNER_HEIGHT } from '@/components/AdBanner';
 
 
 export default function HomeScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
-  const { colors, bestScores, musicEnabled, adsRemoved, isLoading } = useSettings();
+  const { colors, bestScores, isLoading } = useSettings();
 
   if (isLoading) {
     return (
@@ -39,14 +38,13 @@ export default function HomeScreen() {
     return bestScores.piFree || 0;
   };
 
-  const adBannerSpace = adsRemoved ? 0 : AD_BANNER_HEIGHT;
 
   return (
     <LinearGradient
       colors={[colors.background.start, colors.background.end]}
       style={styles.container}
     >
-      <View style={[styles.safeArea, { paddingTop: insets.top + 20, paddingBottom: insets.bottom + adBannerSpace + 20 }]}>
+      <View style={[styles.safeArea, { paddingTop: insets.top + 20, paddingBottom: insets.bottom + 20 }]}>
         <View style={styles.startScreen}>
           <View style={styles.header}>
             <Text style={[styles.title, { color: colors.text.primary }]}>Sequence Master</Text>
