@@ -24,11 +24,10 @@
       }
     },
     "android": {
-      "package": "app.sequence-master",
+      "package": "app.sequencemaster",
       "permissions": [
         "RECORD_AUDIO",
-        "VIBRATE",
-        "android.permission.VIBRATE"
+        "VIBRATE"
       ],
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
