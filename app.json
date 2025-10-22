@@ -27,7 +27,8 @@
       "package": "app.sequencemaster",
       "permissions": [
         "RECORD_AUDIO",
-        "VIBRATE"
+        "VIBRATE",
+        "android.permission.VIBRATE"
       ],
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
